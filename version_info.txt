@@ -5,12 +5,12 @@ VSVersionInfo(
     StringFileInfo([StringTable('040904B0', [
       StringStruct('CompanyName', 'Operator'),
       StringStruct('FileDescription', 'Operator — Ferry, Cargo & ACMI'),
-      StringStruct('FileVersion', '1.8.0.0'),
+      StringStruct('FileVersion', '1.9.0.0'),
       StringStruct('InternalName', 'Operator'),
       StringStruct('LegalCopyright', 'Operator. Third-party names and marks belong to their owners.'),
       StringStruct('OriginalFilename', 'Operator.exe'),
       StringStruct('ProductName', 'Operator — Ferry, Cargo & ACMI'),
-      StringStruct('ProductVersion', '1.8.0')])]),
+      StringStruct('ProductVersion', '1.9.0')])]),
     VarFileInfo([VarStruct('Translation', [1033, 1200])])
   ]
 )
