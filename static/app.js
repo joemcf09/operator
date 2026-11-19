@@ -119,7 +119,11 @@ function render() {
       <div class="kpi"><div class="v">${S.contracts.filter(c => c.status === 'Active').length}</div><div class="l">Active ACMI</div></div>
       <div class="kpi"><div class="v">${co.reputation.toFixed(1)}</div><div class="l">Reputation</div></div>
     </div>` : `<div class="co">Operator</div><div class="sub">Ferry, cargo and ACMI — run a third-party flight operation</div>`;
-  $('#mb-clock').textContent = co ? dt(S.clock) : '';
+$('#mb-clock').textContent = co
+  ? (S.company.clock_mode === 'real'
+      ? new Date().toUTCString().replace(' GMT', ' UTC')
+      : dt(S.clock))
+  : '';
   renderStatus();
   const v = $('#view');
   if (!co) { v.innerHTML = viewSetup(); return; }
@@ -272,9 +276,9 @@ function tutorialSteps() {
       {t: 'Lease or buy an aircraft', done: S.fleet.length > 0, view: 'market', why: 'ACMI needs your own metal. A leased A320/737-800 is the usual first step: 3-month deposit plus first month. Check engine hours to shop visit and ETOPS status on the listing.'},
       {t: 'Hire a maintenance controller', done: S.staff.mx_controller >= 1, view: 'crew', why: 'Fleet aircraft cannot be dispatched without one per 4 aircraft.'},
       {t: 'Build a crew: 2 captains, 2 first officers, cabin crew', done: S.pilots.filter(p => p.rank === 'CPT').length >= 2 && S.pilots.filter(p => p.rank === 'FO').length >= 2 && S.staff.cabin_crew >= 4, view: 'crew', why: 'Two crew sets rated on the type, plus cabin crew (2 sets: 4 on a narrowbody, 8 on a widebody, 2 on regional/turboprop). Flight-duty limits mean one crew cannot fly a full day.'},
-      {t: 'Sign an ACMI tender', done: acmi, view: 'tenders', why: 'Pick a tender for the exact type you have. Read the minimum guarantee, hub and start date. Livery/reconfiguration takes 3 days.'},
+      {t: 'Sign an ACMI tender', done: acmi, view: 'tenders', why: 'Pick a tender whose aircraft class, payload/seats and range your fleet can meet. Read the minimum guarantee, hub and start date. Livery/reconfiguration takes 3 days.'},
       {t: 'Position the aircraft at the customer hub before the start date', done: active, view: 'dispatch', why: 'Dispatch → Positioning → your aircraft, destination = hub. The contract goes Active on the start date once the aircraft is there. Seven days late and the customer walks.'},
-      {t: 'Fly the daily rotation', done: S.flights.some(f => f.kind === 'acmi'), view: 'dispatch', why: 'Dispatch → ACMI rotation leg shows the day\'s legs with departure times. Block hours are invoiced per leg; the month-end true-up pays any shortfall against the guarantee. Keep utilisation above 10% to avoid a notice, and watch satisfaction for an extension offer.'},
+      {t: 'Fly a published rotation', done: S.flights.some(f => f.kind === 'acmi'), view: 'dispatch', why: 'Dispatch → ACMI rotation leg shows the customer\'s scheduled flights on operating days. There may be no flying on off days. Block hours are invoiced per leg; the month-end true-up pays any shortfall against the guarantee. Your guarantee is a payment floor, not a flying-hours quota; performance notices concern missed published sectors. Keep the rotation completion and on-time scores strong for extensions.'},
     ]],
   ];
 }
@@ -303,8 +307,8 @@ const HELP = {
   charter: 'Charter comes in two kinds. Business aircraft fly small parties at a price you set: brokers post enquiries, you quote, and quoting under the going rate wins more of them. Group charter is a whole airliner hired by one party — a tour operator, a football club, a troop rotation, a cruise line — priced by the block hour for the aircraft, and needing enough seats, hold space and rostered cabin crew. Either way, positioning to the client and home again is at your cost, and passengers judge comfort and punctuality.',
   cargo: 'Contract crew flying: real cargo carriers hire your rated crews to operate their aircraft on a published pattern of sectors. No aircraft or ground staff of your own beyond a dispatcher, so it is the cheapest way to earn while you build a fleet. Fly the sectors in order from Dispatch; payment lands when the pairing is complete.',
   ferry: 'Deferred defects are flown, not simulated: Operator checks the altitude, speed, gear and routing you actually used, so an aircraft with no failure system just flies the restriction by hand. Each defect has a "how to fly this" note. Long sectors are planned with technical stops the type can actually make, using runways long enough for it — Dispatch offers each leg in turn. Click any document to read it. Open jobs show the permit basis, deferred defects (hover a code for its effect), tech stop and oceanic/ETOPS flags. After accepting, "My ferry jobs" tracks paperwork (●/○), defects, deadline and legs flown. Expedite speeds up permits; Rectify clears defects for a fee.',
-  tenders: 'A wet lease: you supply Aircraft, Crew, Maintenance, Insurance; the customer pays fuel, fees and a minimum block-hour guarantee. Competing bidders can close a tender early. Rates are seasonal; extension offers come from satisfied customers.',
-  contracts: 'Per contract: hours this month against the guarantee, rotation completion, on-time performance and the resulting satisfaction score. Two non-performance notices terminate the contract; satisfaction ≥ 70 at term end earns an extension offer.',
+  tenders: 'A wet lease: you supply Aircraft, Crew, Maintenance, Insurance; the customer pays fuel and fees plus a minimum monthly block-hour guarantee. Maintenance cover, supplemental, dedicated and peak contracts have different guarantees. Rates are seasonal; extension offers come from satisfied customers.',
+  contracts: 'The monthly minimum is a payment floor, not a flying quota; first and final months are prorated. Missed published sectors can reduce the minimum billable amount and lead to non-performance notices. Two notices terminate a contract. Satisfaction ≥ 70 at term end earns an extension.',
   dispatch: 'Runway analysis & loadsheet checks the runway at both ends against your weight, temperature, wind and runway state, and works out the CG — sliders move the load forward or aft, ballast trims an empty ferry. Choose the flight type and let the form pre-fill from the job, contract rotation or aircraft. If you use SimBrief, Send and Fetch will fill in route, fuel and weights for you; if not, type them in or just press Dispatch with the pre-filled figures. With the aircraft loaded cold at the gate, Connect and Start tracking. Shut down at the gate before filing the PIREP.',
   safety: 'Your safety record and the things currently raising risk. Every sector carries a small chance of an occurrence; fatigue, deferred defects, overdue maintenance, old airframes, weather and thin runway margins all multiply it. Incidents cost money and downtime; accidents are rare and serious. Turn the whole system off in Settings if you would rather not have it.',
   logbook: 'Every filed sector with landing data and net result. View opens the full PIREP with landing analysis; Export CSV and Print/PDF give you a personal logbook.',
@@ -1228,28 +1232,114 @@ function certEmpty(what) {
   return `No ${what} on offer. Your certificate covers the <b>${t.map(esc).join(', ')}</b>, and `
     + `nothing in this market operates those. Add a type on the Company profile to open it up.`;
 }
+/* Mirror Game.acmi_fit() for the browser's aircraft selectors. Python remains
+   authoritative at signing; this only explains/selects qualified aircraft. */
+function acmiRequirements(t) {
+  const ref = S.aircraft_types[t.type] || {}, r = t.requirements || {};
+  const nm = (a, b) => {
+    const x = S.airports[a], y = S.airports[b];
+    if (!x || !y) return 0;
+    const rad = Math.PI / 180;
+    const dLat = (y.lat - x.lat) * rad, dLon = (y.lon - x.lon) * rad;
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(x.lat * rad) * Math.cos(y.lat * rad) * Math.sin(dLon / 2) ** 2;
+    return 2 * 3440.065 * Math.asin(Math.min(1, Math.sqrt(h)));
+  };
+  // Legacy tenders don't include a requirements object: match the Python fallback.
+  const longest = Math.max(0, ...(t.network || []).filter(d => d !== t.hub)
+    .map(d => nm(t.hub, d)));
+  return {
+    family: r.family ?? t.family ?? ref.family,
+    category: r.category ?? ref.cat,
+    cargo: r.cargo ?? t.cargo,
+    min_seats: Number(r.min_seats || 0),
+    min_payload_kg: Number(r.min_payload_kg || 0),
+    max_sector_nm: Number(r.max_sector_nm ?? longest)
+  };
+}
+
+function acmiFitClient(t, a) {
+  const offered = S.aircraft_types[a.type], need = acmiRequirements(t);
+  const blocking = [];
+  if (!offered) return {ok: false, blocking: ['Unknown aircraft type.']};
+  if (offered.family !== need.family) blocking.push('Outside the requested type-rating family.');
+  if (offered.cat !== need.category) blocking.push('Wrong aircraft size class.');
+  if (!!offered.cargo !== !!need.cargo) blocking.push('Passenger/freighter configuration does not match.');
+  if (need.min_seats && (offered.seats || 0) < need.min_seats)
+    blocking.push(`Needs at least ${need.min_seats} passenger seats.`);
+  if (need.min_payload_kg) {
+    const payload = offered.payload_kg || offered.max_payload_kg;
+    if (payload == null) blocking.push('Cargo payload capacity is not defined in data.py.');
+    else if (payload < need.min_payload_kg)
+      blocking.push(`Needs at least ${n1(need.min_payload_kg)} kg cargo payload.`);
+  }
+  if (need.max_sector_nm && (offered.range_nm || 0) * 0.85 < need.max_sector_nm)
+    blocking.push(`Needs ${n1(need.max_sector_nm)} NM sector capability with reserves.`);
+  if (a.status !== 'Available') blocking.push(`Aircraft is ${a.status.toLowerCase()}, not available.`);
+  return {ok: blocking.length === 0, blocking};
+}
+
+function acmiScheduleText(t) {
+  const defaults = {maintenance: 3, supplemental: 5, dedicated: 6, peak: 7};
+  const profile = t.utilization_profile || 'dedicated';
+  const n = t.schedule_days_week || defaults[profile] || 6;
+  const tours = profile === 'maintenance' ? '1–2' : profile === 'supplemental' ? '1–2' : '1–3';
+  return `${n} day${n === 1 ? '' : 's'}/week, approximately ${tours} return trips per operating day`;
+}
+
 function viewTenders() {
   return `<div class="panel"><div class="hd">ACMI tenders <div class="tools hint">You provide Aircraft, Crew, Maintenance, Insurance; the customer pays fuel, handling, fees and a minimum monthly guarantee.</div></div><div class="bd tight">
     <table class="grid"><tr><th>Customer</th><th>Requirement</th><th>Hub</th><th>Start</th><th>Term</th><th class="r">Min BH/mo</th><th class="r">Rate /BH</th><th class="r">Min monthly</th><th>Competing bids</th><th>Expires</th><th></th></tr>
-    ${S.acmi_tenders.map(t => { const have = S.fleet.some(a => a.type === t.type && a.status === 'Available');
-      return `<tr><td>${opLogo(t.customer, 24)}${esc(t.customer)} <small>${t.iata}</small>${t.renewal ? ' <span class="tag info">extension offer</span>' : ''}<br><small>${esc(t.reason)}${t.season_note ? ' · ' + t.season_note : ''}</small></td><td>${esc(t.name)} <small>${t.type}${t.cargo ? ' freighter' : ''}</small></td><td>${ap(t.hub)}</td><td>${dd(t.start)}</td><td>${t.months} mo</td><td class="num">${t.min_hours}</td><td class="num">${usd(t.rate)}</td><td class="num">${usd(t.rate * t.min_hours)}</td><td><small>${t.competitors.map(esc).join('<br>') || 'none'}</small></td><td ${nw}>${dd(t.expires)}</td>
-      <td><button class="sm" onclick="acceptTender(${t.id})" ${have ? '' : 'title="No available aircraft of this type"'}>Bid</button></td></tr>`; }).join('') || `<tr><td colspan="11" class="hint">${certEmpty('tenders')}</td></tr>`}</table></div></div>`;
+    ${S.acmi_tenders.map(t => {
+      const need = acmiRequirements(t);
+      const eligible = S.fleet.filter(a => acmiFitClient(t, a).ok).length;
+      const constraints = [need.category, need.min_payload_kg ? `${wtKg(need.min_payload_kg)} payload` : '',
+        need.min_seats ? `${need.min_seats} seats` : '',
+        need.max_sector_nm ? `${n1(need.max_sector_nm)} nm sector` : ''].filter(Boolean).join(' · ');
+      return `<tr><td>${opLogo(t.customer, 24)}${esc(t.customer)} <small>${esc(t.iata)}</small>${t.renewal ? ' <span class="tag info">extension offer</span>' : ''}<br><small>${esc(t.reason)}${t.season_note ? ' · ' + esc(t.season_note) : ''}</small></td>
+      <td>${esc(t.name)}<br><small class="hint">${esc(constraints || t.family)}</small>${t.utilization_profile ? `<br><small class="hint">${esc(t.utilization_profile)} capacity · ${esc(acmiScheduleText(t))}</small>` : ''}${eligible ? `<br><small class="pos">${eligible} qualifying aircraft in fleet</small>` : ''}</td>
+      <td>${ap(t.hub)}</td><td>${dd(t.start)}</td><td>${t.months} mo</td><td class="num">${t.min_hours}</td><td class="num">${usd(t.rate)}</td><td class="num">${usd(t.rate * t.min_hours)}</td><td><small>${t.competitors.map(esc).join('<br>') || 'none'}</small></td><td ${nw}>${dd(t.expires)}</td>
+      <td><button class="sm" onclick="acceptTender(${t.id})" title="${eligible ? `${eligible} qualifying aircraft available` : 'View requirements and aircraft eligibility'}">Bid</button></td></tr>`;
+    }).join('') || `<tr><td colspan="11" class="hint">${certEmpty('tenders')}</td></tr>`}</table></div></div>`;
 }
+
 function acceptTender(id) {
   const t = S.acmi_tenders.find(x => x.id === id);
-  const acs = S.fleet.filter(a => a.type === t.type && a.status === 'Available');
+  if (!t) { toast('Tender is no longer available.', true); return; }
+  const need = acmiRequirements(t);
+  const assessed = S.fleet.map(a => ({a, fit: acmiFitClient(t, a)}));
+  const acs = assessed.filter(x => x.fit.ok).map(x => x.a);
+  const ineligible = assessed.filter(x => !x.fit.ok);
   const crew = S.pilots.filter(p => p.status === 'Available' && p.ratings.includes(t.family));
-  const cat = S.aircraft_types[t.type].cat, cabin = t.cargo ? 0 : {Turboprop: 2, Regional: 2, Narrowbody: 4, Widebody: 8}[cat] * 2;
+  const cat = need.category;
+  const cabin = t.cargo ? 0 : ({Turboprop: 2, Regional: 2, Narrowbody: 4, Widebody: 8}[cat] || 0) * 2;
   const freeCabin = S.staff.cabin_crew - S.cabin_assigned;
-  modal(`Contract with ${t.customer}`, `${opLogo(t.customer, 44) ? `<div style="margin-bottom:8px">${opLogo(t.customer, 44)}</div>` : ''}<div class="kv"><div>Aircraft type</div><div>${esc(t.name)}</div><div>Operating base</div><div>${t.hub} — ${esc(S.airports[t.hub].name)}</div><div>Term</div><div>${t.months} months from ${dd(t.start)}</div><div>Rate</div><div>${usd(t.rate)} per block hour, minimum ${t.min_hours} BH/month (${usd(t.rate * t.min_hours)})</div><div>Network</div><div>${t.network.join(' ')}</div>
+  const role = need.cargo ? 'freighter' : 'passenger';
+  const capacity = need.cargo ? (need.min_payload_kg ? wtKg(need.min_payload_kg) : 'Not specified')
+    : (need.min_seats ? `${need.min_seats} seats` : 'Not specified');
+  const otherAircraft = ineligible.length ? `<div class="full"><details style="margin-top:4px"><summary class="hint">${ineligible.length} other aircraft in fleet — why they do not qualify</summary>
+      <div style="max-height:130px;overflow:auto;margin-top:5px"><table class="grid">${ineligible.map(({a, fit}) =>
+        `<tr><td style="white-space:nowrap">${esc(a.reg)} <small>${esc(a.type)}</small></td><td class="hint">${esc(fit.blocking.join(' '))}</td></tr>`).join('')}</table></div></details></div>` : '';
+  modal(`Contract with ${t.customer}`, `${opLogo(t.customer, 44) ? `<div style="margin-bottom:8px">${opLogo(t.customer, 44)}</div>` : ''}<div class="kv">
+    <div>Aircraft requirement</div><div>${esc(t.name)}</div>
+    <div>Class / rating</div><div>${esc(cat || '—')} ${role} · ${esc(need.family || t.family)} rating</div>
+    <div>${need.cargo ? 'Minimum cargo payload' : 'Minimum passenger capacity'}</div><div>${capacity}</div>
+    <div>Longest required sector</div><div>${need.max_sector_nm ? `${n1(need.max_sector_nm)} nm with reserves` : 'Not specified'}</div>
+    <div>Operating base</div><div>${t.hub} — ${esc((S.airports[t.hub] || {}).name || t.hub)}</div>
+    <div>Term</div><div>${t.months} months from ${dd(t.start)}</div>
+    <div>Utilization profile</div><div>${esc(t.utilization_profile || 'standard')} capacity</div>
+    <div>Customer flying pattern</div><div>${esc(acmiScheduleText(t))}. Actual published flights vary; no flying is requested on off days.</div>
+    <div>Rate</div><div>${usd(t.rate)} per block hour, minimum ${t.min_hours} BH/month (${usd(t.rate * t.min_hours)})</div>
+    <div>Minimum guarantee</div><div>Monthly payment floor, not a required number of flight hours. First and final months are prorated; missed published rotations may reduce the billable floor.</div>
+    <div>Network</div><div>${(t.network || []).map(esc).join(' ')}</div>
     <div>Cabin crew</div><div>${t.cargo ? 'not required (freighter)' : `${cabin} required (2 sets) — ${freeCabin} unassigned${freeCabin < cabin ? ' <span class="neg">— hire more in Crew & staff</span>' : ''}`}</div></div>
-    <p class="hint">The aircraft must be positioned at ${t.hub} by the start date. Livery and cabin reconfiguration takes 3 days (decals only: 1 day). KPIs: utilisation vs guarantee, completion of the published rotation and on-time performance. Delays over 15 minutes carry a per-minute penalty. Satisfaction ≥ 70 at term end earns an extension offer.</p>
-    <div class="form"><label>Aircraft</label><select id="at-ac">${acs.map(a => `<option value="${a.id}">${a.reg} — at ${a.location}, ${n1(a.hours)} h${a.etops ? '' : ', non-ETOPS'}</option>`).join('') || '<option value="">— no available ' + t.type + ' in fleet —</option>'}</select>
+    <p class="hint">The aircraft must be positioned at ${t.hub} by the start date. Livery and cabin reconfiguration takes 3 days (decals only: 1 day). KPIs: completion of the published rotation and on-time performance. Low flight hours alone do not trigger a breach. Delays over 15 minutes carry a per-minute penalty. Satisfaction ≥ 70 at term end earns an extension offer.</p>
+    <div class="form"><label>Aircraft</label><select id="at-ac" onchange="crewCount()">${acs.map(a => `<option value="${a.id}">${esc(a.reg)} — ${esc(a.name || a.type)} at ${esc(a.location)}, ${n1(a.hours)} h${a.etops ? '' : ', non-ETOPS'}</option>`).join('') || '<option value="">— no qualifying aircraft in fleet —</option>'}</select>
+    ${otherAircraft}
     <label>Livery</label><select id="at-liv"><option value="1">Full customer livery + cabin reconfiguration (${usd(cat === 'Widebody' ? 120000 : 45000)}, 3 days)</option><option value="0">Decals and placards only ($12,000, 1 day)</option></select>
     <label>Crew</label><div id="at-crewbox" style="border:1px solid var(--field-line);background:var(--field);border-radius:2px;max-height:190px;overflow:auto;padding:2px 0">
       ${['CPT', 'FO'].map(rk => { const list = crew.filter(p => p.rank === rk); return `<div style="padding:3px 8px;background:var(--subtle2);border-bottom:1px solid var(--line-soft);color:var(--muted);font-size:11px">${rk === 'CPT' ? 'Captains — at least 2' : 'First officers'}</div>` +
         (list.map(p => `<label style="display:flex;gap:8px;align-items:center;padding:3px 8px;cursor:pointer"><input type="checkbox" class="at-crew" value="${p.id}" data-rank="${p.rank}" style="width:auto" onchange="crewCount()"><span>${esc(p.name)}</span><span class="hint" style="margin-left:auto">${n1(p.hours)} h</span></label>`).join('')
-         || '<div class="hint" style="padding:3px 8px">none available and rated on ' + t.family + '</div>'); }).join('')}
+         || '<div class="hint" style="padding:3px 8px">none available and rated on ' + esc(t.family) + '</div>'); }).join('')}
     </div><div></div><div id="at-crewmsg" class="hint">Tick four pilots, at least two of them captains, so both crew sets have a commander.</div></div>`,
     `<button onclick="closeModal()">Cancel</button><button class="primary" id="at-sign" disabled onclick="act(()=>api('/api/acmi/accept',{id:${id},aircraft_id:$('#at-ac').value,crew_ids:[...document.querySelectorAll('.at-crew:checked')].map(o=>o.value),livery:$('#at-liv').value==='1'}),'Contract signed');closeModal()">Sign contract</button>`);
   crewCount();
@@ -1284,19 +1374,21 @@ function endContract(id) {
 function viewContracts() {
   return S.contracts.slice().reverse().map(c => { const k = c.kpi; return `<div class="panel"><div class="hd">#${c.id} ${opLogo(c.customer, 24)}${esc(c.customer)} — ${esc(c.name)} ${c.reg} <div class="tools">${c.renewal ? '<span class="tag info">renewal</span>' : ''}${tagStatus(c.status)}</div></div><div class="bd">
     <div class="row"><div class="col"><div class="kv"><div>Base</div><div>${ap(c.hub)}</div><div>Term</div><div>${dd(c.start)} → ${dd(c.end)} (${c.months} mo, ${c.months_billed} billed)</div><div>Rate</div><div>${usd(c.rate)}/BH · min ${c.min_hours} BH/mo</div>
+      <div>Service profile</div><div>${esc(c.utilization_profile || 'standard')} capacity</div>
+      <div>Published schedule</div><div>${esc(acmiScheduleText(c))}</div>
       <div>This month</div><div>${n1(c.hours_month)} BH in ${c.legs_month} legs (${Math.round(c.hours_month / c.min_hours * 100)}% of guarantee)</div>
       <div>Rotation completion</div><div>${k.legs_flown} of ${k.legs_scheduled} scheduled legs${k.legs_scheduled ? ` (${Math.round(k.legs_flown / k.legs_scheduled * 100)}%)` : ''}</div>
       <div>On-time</div><div>${k.legs_flown ? Math.round((1 - k.late / k.legs_flown) * 100) : 100}% · ${k.delay_min} delay minutes</div>
       <div>Customer satisfaction</div><div><b class="${k.satisfaction < 50 ? 'neg' : k.satisfaction >= 70 ? 'pos' : ''}">${k.satisfaction}</b> / 100</div>
       <div>Total</div><div>${n1(c.hours_total)} BH · ${usd(c.revenue_total)} revenue</div><div>Notices</div><div>${c.strikes}</div><div>Cabin crew</div><div>${c.cabin_crew || 'n/a'}</div><div>Reason</div><div>${esc(c.reason)}</div></div></div>
-    <div class="col"><table class="grid"><tr><th>Month</th><th class="r">BH</th><th class="r">Legs</th><th class="r">Utilisation</th><th class="r">Completion</th><th class="r">OTP</th><th class="r">Satisfaction</th></tr>${c.history.map(h => `<tr><td>${esc(h.month)}</td><td class="num">${h.hours}</td><td class="num">${h.legs}</td><td class="num">${h.util}%</td><td class="num">${h.completion ?? '—'}%</td><td class="num">${h.otp ?? '—'}%</td><td class="num">${h.satisfaction ?? '—'}</td></tr>`).join('') || '<tr><td colspan="7" class="hint">No month closed yet.</td></tr>'}</table></div></div>
+    <div class="col"><table class="grid"><tr><th>Month</th><th class="r">BH</th><th class="r">Guarantee BH</th><th class="r">True-up BH</th><th class="r">Legs</th><th class="r">Utilisation</th><th class="r">Completion</th><th class="r">OTP</th><th class="r">Satisfaction</th></tr>${c.history.map(h => `<tr><td>${esc(h.month)}</td><td class="num">${h.hours}</td><td class="num">${h.guarantee ?? c.min_hours}</td><td class="num">${h.trueup ?? '—'}</td><td class="num">${h.legs}</td><td class="num">${h.util}%</td><td class="num">${h.completion ?? '—'}%</td><td class="num">${h.otp ?? '—'}%</td><td class="num">${h.satisfaction ?? '—'}</td></tr>`).join('') || '<tr><td colspan="9" class="hint">No month closed yet.</td></tr>'}</table></div></div>
     ${c.status === 'Active' || c.status === 'Pending start' ? `<div class="actions" style="margin-top:10px">
-      ${c.status === 'Active' ? `<button class="primary" onclick="operateRotation(${c.id})">Let the crew fly today's rotation</button>
+      ${c.status === 'Active' ? `<button class="primary" onclick="operateRotation(${c.id})">Let crew fly today's flights</button>
         <button class="sm" onclick="nav('dispatch')">Fly it yourself</button>` : ''}
       <button class="sm danger" onclick="endContract(${c.id})">Hand the contract back</button>
     </div>
     <p class="hint" style="margin:6px 0 0">${c.status === 'Active'
-      ? 'A rotation is published every day whether you fly it or not. Handing it to the crew keeps the guarantee and the completion figures intact when you have not the time; the flying is scored as theirs, not yours.'
+      ? 'Customers publish flights on their operating days. On off days the aircraft remains available, the minimum guarantee still applies, and no flight is marked missed. Hand requested flights to your crew when you cannot fly them personally.'
       : 'The contract has not started yet. Position the aircraft at the hub before the start date.'}</p>` : ''}
     </div></div>`; }).join('') || '<div class="panel"><div class="bd hint">No contracts signed.</div></div>';
 }
@@ -1376,12 +1468,31 @@ function dispatchKind() {
 }
 async function loadRotation() {
   const cid = $('#d-contract').value; const c = S.contracts.find(x => x.id == cid);
-  try { const j = await api(`/api/contract/${cid}/rotation`); AF_SEL.legs = j.legs;
-    $('#d-rot').innerHTML = `<div class="hint">Rotation published by ${esc(c.customer)} for ${dd(S.clock)}. Aircraft at ${S.fleet.find(a => a.id === c.aircraft_id).location}.</div><table class="grid"><tr><th>#</th><th>Flight</th><th>STD</th><th>Sector</th><th class="r">nm</th><th class="r">ETE</th><th></th></tr>${j.legs.map((l, i) => `<tr><td>${l.seq}</td><td>${l.flight_number}</td><td>${l.std}Z</td><td>${l.origin} → ${l.destination}</td><td class="num">${l.distance}</td><td class="num">${hhmm(l.ete_min)}</td><td><button class="sm" onclick="pickLeg(${i})">Select</button></td></tr>`).join('')}</table>`;
+  if (!c) return;
+  try {
+    const j = await api(`/api/contract/${cid}/rotation`);
+    AF_SEL.legs = j.legs || [];
+    if (!AF_SEL.legs.length) {
+      AF_SEL.std = '';
+      $('#d-rot').innerHTML = `<div class="msg ok" style="margin-top:6px"><b>No flights requested today.</b> ${esc(c.customer)} has no published rotation for ${dd(S.clock)}. ${esc(acmiScheduleText(c))}; the monthly minimum guarantee remains in force.</div>`;
+      return;
+    }
+    $('#d-rot').innerHTML = `<div class="hint">Rotation published by ${esc(c.customer)} for ${dd(S.clock)}. Aircraft at ${S.fleet.find(a => a.id === c.aircraft_id).location}.</div><table class="grid"><tr><th>#</th><th>Flight</th><th>STD</th><th>Sector</th><th class="r">nm</th><th class="r">ETE</th><th></th></tr>${AF_SEL.legs.map((l, i) => `<tr><td>${l.seq}</td><td>${l.flight_number}</td><td>${l.std}Z</td><td>${l.origin} → ${l.destination}</td><td class="num">${l.distance}</td><td class="num">${hhmm(l.ete_min)}</td><td><button class="sm" onclick="pickLeg(${i})">Select</button></td></tr>`).join('')}</table>`;
     pickLeg(0);
   } catch (e) { toast(e.message, true); }
 }
-function pickLeg(i) { setTimeout(routePlan, 0); const l = AF_SEL.legs[i]; AF_SEL.std = l.std; $('#d-fno').value = l.flight_number; $('#d-org').value = l.origin; $('#d-dst').value = l.destination; $('#d-dist').value = l.distance; $('#d-ete').value = l.ete_min; fuelHint(); }
+function pickLeg(i) {
+  const l = (AF_SEL.legs || [])[i];
+  if (!l) return;
+  AF_SEL.std = l.std;
+  $('#d-fno').value = l.flight_number;
+  $('#d-org').value = l.origin;
+  $('#d-dst').value = l.destination;
+  $('#d-dist').value = l.distance;
+  $('#d-ete').value = l.ete_min;
+  fuelHint();
+  setTimeout(routePlan, 0);
+}
 function nextWp(j) { const rt = (j.routing || [j.destination]); const i = rt.indexOf(j.current); return i >= 0 && i + 1 < rt.length ? rt[i + 1] : (j.current === j.origin ? rt[0] : j.destination); }
 function pickJob() { setTimeout(routePlan, 0); const j = S.ferry_board.find(x => x.id == $('#d-job').value); const wp = nextWp(j); $('#d-org').value = j.current; $('#d-dst').value = wp; $('#d-fno').value = S.company.code + (9000 + j.id); $('#d-dist').value = ''; $('#d-ete').value = '';
   const pend = j.docs.filter(d => d.ready > S.clock);
@@ -1543,6 +1654,10 @@ async function importSimbrief() {
   } catch (e) { $('#d-sbmsg').textContent = 'SimBrief: ' + e.message; }
 }
 async function doDispatch() {
+  if ($('#d-kind').value === 'acmi' && !(AF_SEL.legs || []).length) {
+    toast('No ACMI flying is scheduled for this contract today.', true);
+    return;
+  }
   const d = formData();
   d.weather = OFP && OFP.origin === d.origin.toUpperCase() ? OFP.weather : null;
   await act(() => api('/api/dispatch', d), 'Flight dispatched');
@@ -2358,7 +2473,7 @@ function viewHelp() {
     <h2>Cargo contract flying</h2>
     <p>Freight carriers — FedEx, UPS, Atlas, Kalitta, Cargolux, Cargojet, ASL, AeroLogic, Amerijet, Northern Air Cargo and others — hire contract crews when they are short. They provide the aircraft, the fuel and the load; you provide a rated captain and first officer who fly a published pattern of sectors, usually at night, over one to several days. Payment is a block-hour rate plus a day rate for each crew member, settled when the last sector is flown. Your only costs are positioning, hotels and crew time, so it is the cheapest way to earn while you build towards a fleet. Payloads are set by the carrier and can be heavy or awkward — dangerous goods, an AOG engine, oversize project cargo — so check the runway analysis before each sector.</p>
     <h2>ACMI (wet lease)</h2>
-    <p>Airlines tender for capacity against named competitors. You provide Aircraft, Crew, Maintenance and Insurance: an aircraft of the exact type, two captains, two first officers, cabin crew for passenger work, a maintenance controller and a dispatcher. Reconfigure and reposition before the start date. Each day the customer publishes a rotation with departure times; your crews are limited to 13 hours of flight duty with 12 hours' rest, so a second crew set matters. KPIs are utilisation against the guarantee, completion of the published rotation and on-time performance; technical delays draw a per-minute penalty. Fewer than 10% of guaranteed hours in a month draws a notice, two notices end the contract; satisfaction of 70 or more at term end earns an extension offer. Rates and tender volume follow the season.</p>
+    <p>Airlines tender for capacity against named competitors. You provide Aircraft, Crew, Maintenance and Insurance: an aircraft meeting the tender's size, range and capacity requirements, two captains, two first officers, cabin crew for passenger work, a maintenance controller and a dispatcher. Reconfigure and reposition before the start date. The customer publishes rotations on its contracted operating days (not every day); your crews are limited to 13 hours of flight duty with 12 hours' rest, so a second crew set matters. Guaranteed block hours are a payment floor, not a flying quota, and first/final months are prorated. Missing a substantial share of published sectors can reduce the minimum billable amount and trigger a non-performance notice. Two notices end the contract; satisfaction of 70 or more at term end earns an extension offer. Rates and tender volume follow the season.</p>
     <h2>Your certificate</h2>
     <p>An air operator certificate says where you may fly and, if you chose it at setup, what you may fly. <b>Areas of operation</b> start as the region your base is in; work is only offered inside them and a sector to a field outside cannot be released. <b>Types on the certificate</b> are optional — found the company with one and ferry, cargo, ACMI and charter work is only offered on that type, nothing else can be released under your AOC, and the crew market fills with people rated on it. Leave it alone and the certificate carries no type restriction. Adding either later is an amendment on the Company profile: an application with a fee and a wait, and for a type a training programme, a maintenance programme, manuals and a proving flight. A second type from a manufacturer already on your certificate is cheaper and quicker. You may own an aircraft you are not approved for; it stays on the ground.</p>
     <h2>Buying and delivery</h2>
@@ -2380,10 +2495,10 @@ function viewHelp() {
     <h2>Clock</h2><p>Game time advances with flights and the Next day controls; or follow the simulator's Zulu clock, or run in real time (Settings).</p>
     <h2>Tutorial</h2><p>The Getting started panel on the Dashboard tracks your progress through a first ferry job and a first ACMI contract. ${S.company.tutorial_hidden ? '<button class="sm" onclick="act(()=>api(\'/api/company/settings\',{tutorial_hidden:false}),\'Tutorial shown\')">Show it again</button>' : 'Each screen also has a help strip at the top; hide or show it per screen.'}</p>
     <h2>Glossary</h2><table class="grid">${[
-      ['ACMI / wet lease', 'You provide Aircraft, Crew, Maintenance and Insurance; the lessee sells the seats and pays fuel, handling, navigation and a minimum number of block hours a month.'],
+      ['ACMI / wet lease', 'You provide Aircraft, Crew, Maintenance and Insurance; the lessee sells the seats and pays fuel, handling, navigation and a minimum guaranteed number of billable block hours each month.'],
       ['Dry lease', 'Aircraft only — what you sign with AerCap or Avolon when you lease from the market.'],
       ['Block hours (BH)', 'Brake release to brake set. ACMI rates and guarantees are quoted per block hour.'],
-      ['Minimum guarantee', 'Block hours the customer pays for whether or not they are flown; the month-end true-up covers the shortfall.'],
+      ['Minimum guarantee', 'A monthly payment floor even when the customer uses fewer hours. Prorated for partial months and subject to service credits if published flights are missed.'],
       ['FDP', 'Flight duty period. Crews are limited to 13 hours a day here, with 12 hours rest after a long duty.'],
       ['CofA', 'Certificate of Airworthiness. An aircraft with open defects outside the MEL flies on a special flight permit instead.'],
       ['Special flight permit', 'A ferry permit issued by the state of registry allowing a non-airworthy aircraft to fly to a place where it can be fixed, under conditions (altitude, speed, gear down, day VMC).'],
@@ -2496,3 +2611,16 @@ function downloadCard(year) {
 document.querySelectorAll('.menubar .m').forEach(m => m.onclick = () => { if (S && S.company) nav(m.dataset.view); });
 applyTheme();
 load().catch(e => { $('#view').innerHTML = `<div class="msg bad">Cannot reach the Operator server: ${esc(e.message)}</div>`; });
+
+/* Live UTC clock — only in Real-Time mode */
+setInterval(() => {
+  const clock = $('#mb-clock');
+
+  if (clock && S && S.company &&
+      S.company.clock_mode === 'real') {
+    clock.textContent = new Date()
+      .toUTCString()
+      .replace(' GMT', ' UTC');
+  }
+}, 1000);
+
