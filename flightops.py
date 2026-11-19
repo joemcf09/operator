@@ -39,7 +39,14 @@ def wx_flags(metar):
 
 SIMBRIEF_DISPATCH = "https://dispatch.simbrief.com/options/custom?"
 # SimBrief airframe codes differ from ICAO for a few freighters/variants
-SB_TYPE = {"B76F": "B763", "B77F": "B77L", "B744": "B744", "B748": "B748"}
+SB_TYPE = {
+    "B75F": "B75F",
+    "B76D": "B76F",
+    "B76B": "B76F",
+    "B76F": "B76F",    
+    "B77F": "B77F", 
+    "B744": "B74F", 
+    "B748": "B748"}
 
 
 def simbrief_prefill(f, company, crew, static_id, clock, units="lbs"):
