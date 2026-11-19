@@ -1,0 +1,17 @@
+/.venv/
+/venv/
+__pycache__/
+*.py[cod]
+/build/
+/dist/
+/installer/Output/
+/save/
+*.db
+*.db-shm
+*.db-wal
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db

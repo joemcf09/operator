@@ -1,0 +1,107 @@
+================================================================================
+  OPERATOR - RUNNING ON macOS AND LINUX
+================================================================================
+
+  The Windows installer will not run on a Mac. Use the cross-platform package
+  instead - it is the same program, run from source.
+
+    Operator-1.0.0-Source-CrossPlatform.zip
+
+
+  WHAT YOU NEED
+  -------------
+  Python 3.10 or newer.
+
+    macOS   https://www.python.org/downloads/macos/   (or: brew install python)
+    Linux   sudo apt install python3 python3-venv     (Debian/Ubuntu)
+
+  Nothing else. The first run downloads Flask and the window library into a
+  private folder inside the program's own directory; nothing is installed
+  system-wide.
+
+
+  RUNNING IT
+  ----------
+  1. Unzip somewhere sensible - your home folder or Applications, not the
+     Downloads quarantine.
+  2. Open Terminal in that folder and run:
+
+         ./run.sh
+
+     If macOS refuses with "permission denied", run  chmod +x run.sh  first.
+     You can also double-click run.sh in Finder once it is executable.
+
+  3. Operator opens in its own window. Closing the window stops the program.
+     If no window appears, it falls back to your browser at
+     http://127.0.0.1:8123 - that works exactly the same.
+
+
+  SIMULATOR SUPPORT
+  -----------------
+  X-Plane 11 and 12          fully supported. Nothing to install: Operator
+                             listens for datarefs over UDP port 49000. X-Plane
+                             may be on this machine or another one on your
+                             network - set the address in Settings.
+
+  MSFS and Prepar3D          Windows only, because SimConnect is a Windows
+                             library. If you fly MSFS on a Windows PC and want
+                             Operator on a Mac, run Operator on the Windows
+                             machine instead.
+
+  Everything else - SimBrief, the loadsheet, permits, contracts, analytics -
+  works identically on all three platforms.
+
+
+  IF THE WINDOW WILL NOT OPEN
+  ---------------------------
+  macOS   The window uses WebKit through pyobjc, which the first run installs.
+          If it fails, Operator falls back to a browser window automatically.
+
+  Linux   The window needs GTK or Qt:
+              sudo apt install python3-gi gir1.2-webkit2-4.1
+          or  .venv/bin/pip install pyqt6 qtpy
+          Without either, Operator uses your browser instead - nothing is lost.
+
+  Force a browser window at any time:   ./run.sh --browser
+
+
+  RUNNING IT ON A SERVER
+  ----------------------
+  Operator is a Python web application, so a Linux box, a Proxmox container or
+  a NAS can hold your company and you can open it from whichever PC you are
+  flying on that day.
+
+      ./run.sh --lan                 listen on every interface, port 8123
+      ./run.sh --host 0.0.0.0        the same thing, written out
+      ./run.sh --host 192.168.1.50   one interface only
+      ./run.sh --lan --port 9000     a different port
+
+  It prints the address to use from another machine when it starts. With --lan
+  it opens no window and no browser, which is what you want on a headless box;
+  add --window if you do want one.
+
+  X-Plane telemetry works across the network already: put the address of the PC
+  running X-Plane into Settings and Operator will listen to it from the server.
+  MSFS and Prepar3D cannot do this - SimConnect only talks to the machine it is
+  running on, so for those Operator has to be on the simulator PC.
+
+  To keep it running after you log out, use systemd:
+
+      [Unit]
+      Description=Operator
+      After=network.target
+
+      [Service]
+      WorkingDirectory=/opt/operator
+      ExecStart=/opt/operator/run.sh --lan
+      Restart=on-failure
+      User=operator
+
+      [Install]
+      WantedBy=multi-user.target
+
+  There is no login and no password. Anyone who can reach the address can open
+  your company, so keep it on a network you trust and do not forward the port
+  to the internet.
+
+================================================================================

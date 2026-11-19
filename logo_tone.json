@@ -1,0 +1,998 @@
+{
+"aercap": {
+"tone": "dark",
+"lum": 37
+},
+"avolon": {
+"tone": "light",
+"lum": 173
+},
+"smbc-aviation-capital": {
+"tone": "light",
+"lum": 192
+},
+"air-lease-corporation": {
+"tone": "mid",
+"lum": 154
+},
+"boc-aviation": {
+"tone": "dark",
+"lum": 14
+},
+"aviation-capital-group": {
+"tone": "dark",
+"lum": 54
+},
+"dae-capital": {
+"tone": "dark",
+"lum": 33
+},
+"aircastle": {
+"tone": "light",
+"lum": 189
+},
+"bbam": {
+"tone": "dark",
+"lum": 0
+},
+"castlelake": {
+"tone": "dark",
+"lum": 51
+},
+"jackson-square-aviation": {
+"tone": "dark",
+"lum": 34
+},
+"orix-aviation": {
+"tone": "dark",
+"lum": 19
+},
+"griffin-global-asset-management": {
+"tone": "dark",
+"lum": 38
+},
+"azorra": {
+"tone": "light",
+"lum": 237
+},
+"truenoord": {
+"tone": "light",
+"lum": 224
+},
+"nordic-aviation-capital": {
+"tone": "dark",
+"lum": 21
+},
+"lufthansa": {
+"tone": "dark",
+"lum": 22
+},
+"eurowings": {
+"tone": "dark",
+"lum": 68
+},
+"condor": {
+"tone": "dark",
+"lum": 27
+},
+"tui-fly": {
+"tone": "dark",
+"lum": 56
+},
+"tui-airways": {
+"tone": "dark",
+"lum": 56
+},
+"klm": {
+"tone": "mid",
+"lum": 124
+},
+"transavia": {
+"tone": "mid",
+"lum": 158
+},
+"air-france": {
+"tone": "dark",
+"lum": 21
+},
+"easyjet": {
+"tone": "mid",
+"lum": 123
+},
+"jet2": {
+"tone": "dark",
+"lum": 97
+},
+"british-airways": {
+"tone": "dark",
+"lum": 82
+},
+"virgin-atlantic": {
+"tone": "dark",
+"lum": 54
+},
+"sas": {
+"tone": "dark",
+"lum": 11
+},
+"norwegian": {
+"tone": "light",
+"lum": 209
+},
+"finnair": {
+"tone": "dark",
+"lum": 9
+},
+"lot-polish-airlines": {
+"tone": "dark",
+"lum": 42
+},
+"austrian-airlines": {
+"tone": "dark",
+"lum": 62
+},
+"brussels-airlines": {
+"tone": "dark",
+"lum": 28
+},
+"swiss": {
+"tone": "dark",
+"lum": 54
+},
+"aer-lingus": {
+"tone": "dark",
+"lum": 110
+},
+"air-serbia": {
+"tone": "dark",
+"lum": 30
+},
+"wizz-air": {
+"tone": "dark",
+"lum": 49
+},
+"vueling": {
+"tone": "dark",
+"lum": 81
+},
+"iberia": {
+"tone": "dark",
+"lum": 75
+},
+"tap-air-portugal": {
+"tone": "dark",
+"lum": 78
+},
+"airbaltic": {
+"tone": "dark",
+"lum": 36
+},
+"icelandair": {
+"tone": "dark",
+"lum": 9
+},
+"air-canada": {
+"tone": "dark",
+"lum": 18
+},
+"westjet": {
+"tone": "dark",
+"lum": 66
+},
+"sun-country-airlines": {
+"tone": "dark",
+"lum": 76
+},
+"frontier-airlines": {
+"tone": "dark",
+"lum": 75
+},
+"air-india": {
+"tone": "dark",
+"lum": 86
+},
+"indigo": {
+"tone": "dark",
+"lum": 30
+},
+"qantas": {
+"tone": "dark",
+"lum": 64
+},
+"air-new-zealand": {
+"tone": "dark",
+"lum": 0
+},
+"saudia": {
+"tone": "dark",
+"lum": 75
+},
+"flynas": {
+"tone": "mid",
+"lum": 141
+},
+"kenya-airways": {
+"tone": "dark",
+"lum": 71
+},
+"ethiopian-airlines": {
+"tone": "dark",
+"lum": 81
+},
+"azul": {
+"tone": "dark",
+"lum": 68
+},
+"latam-airlines": {
+"tone": "dark",
+"lum": 22
+},
+"copa-airlines": {
+"tone": "dark",
+"lum": 46
+},
+"amazon-air": {
+"tone": "mid",
+"lum": 138
+},
+"kuehne-nagel": {
+"tone": "dark",
+"lum": 41
+},
+"db-schenker": {
+"tone": "dark",
+"lum": 74
+},
+"delta-air-lines": {
+"tone": "dark",
+"lum": 46
+},
+"united-airlines": {
+"tone": "dark",
+"lum": 33
+},
+"american-airlines": {
+"tone": "dark",
+"lum": 71
+},
+"southwest-airlines": {
+"tone": "dark",
+"lum": 79
+},
+"jetblue": {
+"tone": "dark",
+"lum": 48
+},
+"alaska-airlines": {
+"tone": "dark",
+"lum": 54
+},
+"spirit-airlines": {
+"tone": "dark",
+"lum": 0
+},
+"allegiant-air": {
+"tone": "dark",
+"lum": 88
+},
+"ryanair": {
+"tone": "dark",
+"lum": 58
+},
+"emirates": {
+"tone": "dark",
+"lum": 64
+},
+"qatar-airways": {
+"tone": "dark",
+"lum": 63
+},
+"etihad-airways": {
+"tone": "mid",
+"lum": 137
+},
+"turkish-airlines": {
+"tone": "dark",
+"lum": 59
+},
+"cathay-pacific": {
+"tone": "dark",
+"lum": 72
+},
+"singapore-airlines": {
+"tone": "mid",
+"lum": 122
+},
+"japan-airlines": {
+"tone": "dark",
+"lum": 35
+},
+"all-nippon-airways": {
+"tone": "dark",
+"lum": 32
+},
+"korean-air": {
+"tone": "dark",
+"lum": 24
+},
+"china-southern": {
+"tone": "dark",
+"lum": 75
+},
+"avianca": {
+"tone": "dark",
+"lum": 53
+},
+"aeromexico": {
+"tone": "dark",
+"lum": 13
+},
+"volaris": {
+"tone": "dark",
+"lum": 77
+},
+"gol": {
+"tone": "mid",
+"lum": 135
+},
+"air-europa": {
+"tone": "dark",
+"lum": 94
+},
+"ita-airways": {
+"tone": "dark",
+"lum": 75
+},
+"pegasus": {
+"tone": "dark",
+"lum": 70
+},
+"sunexpress": {
+"tone": "dark",
+"lum": 68
+},
+"corendon-airlines": {
+"tone": "dark",
+"lum": 75
+},
+"air-astana": {
+"tone": "dark",
+"lum": 74
+},
+"royal-jordanian": {
+"tone": "dark",
+"lum": 51
+},
+"oman-air": {
+"tone": "mid",
+"lum": 159
+},
+"gulf-air": {
+"tone": "dark",
+"lum": 96
+},
+"egyptair": {
+"tone": "dark",
+"lum": 31
+},
+"royal-air-maroc": {
+"tone": "dark",
+"lum": 47
+},
+"south-african-airways": {
+"tone": "dark",
+"lum": 109
+},
+"air-tahiti-nui": {
+"tone": "dark",
+"lum": 46
+},
+"fiji-airways": {
+"tone": "dark",
+"lum": 39
+},
+"air-malta": {
+"tone": "dark",
+"lum": 35
+},
+"aegean-airlines": {
+"tone": "dark",
+"lum": 47
+},
+"croatia-airlines": {
+"tone": "dark",
+"lum": 50
+},
+"luxair": {
+"tone": "mid",
+"lum": 131
+},
+"edelweiss": {
+"tone": "dark",
+"lum": 91
+},
+"airbridgecargo": {
+"tone": "dark",
+"lum": 59
+},
+"air-atlanta-icelandic": {
+"tone": "dark",
+"lum": 100
+},
+"airexplore": {
+"tone": "dark",
+"lum": 23
+},
+"avion-express": {
+"tone": "dark",
+"lum": 78
+},
+"electra-airways": {
+"tone": "dark",
+"lum": 64
+},
+"european-air-charter": {
+"tone": "dark",
+"lum": 100
+},
+"freebird-airlines": {
+"tone": "mid",
+"lum": 121
+},
+"getjet-airlines": {
+"tone": "dark",
+"lum": 45
+},
+"heston-airlines": {
+"tone": "dark",
+"lum": 25
+},
+"hi-fly": {
+"tone": "dark",
+"lum": 109
+},
+"iberojet": {
+"tone": "mid",
+"lum": 119
+},
+"magma-aviation": {
+"tone": "dark",
+"lum": 74
+},
+"marabu-airlines": {
+"tone": "dark",
+"lum": 71
+},
+"nordic-aviation-group": {
+"tone": "dark",
+"lum": 47
+},
+"omni-air-international": {
+"tone": "dark",
+"lum": 70
+},
+"privilege-style": {
+"tone": "dark",
+"lum": 2
+},
+"sky-lease-cargo": {
+"tone": "dark",
+"lum": 102
+},
+"smartlynx-airlines": {
+"tone": "dark",
+"lum": 62
+},
+"titan-airways": {
+"tone": "dark",
+"lum": 91
+},
+"wamos-air": {
+"tone": "dark",
+"lum": 106
+},
+"dhl-aero-expreso": {
+"tone": "mid",
+"lum": 148
+},
+"latam-cargo-brazil": {
+"tone": "dark",
+"lum": 23
+},
+"sf-airlines": {
+"tone": "dark",
+"lum": 1
+},
+"kalitta-air": {
+"tone": "dark",
+"lum": 32
+},
+"royal-air-maroc-cargo": {
+"tone": "dark",
+"lum": 53
+},
+"lot-cargo": {
+"tone": "dark",
+"lum": 43
+},
+"macquarie-airfinance": {
+"tone": "placeholder",
+"lum": 97
+},
+"finnair-cargo": {
+"tone": "dark",
+"lum": 25
+},
+"philippine-airlines-cargo": {
+"tone": "dark",
+"lum": 80
+},
+"southwest-cargo": {
+"tone": "dark",
+"lum": 82
+},
+"pakistan-international-cargo": {
+"tone": "dark",
+"lum": 48
+},
+"lufthansa-cargo": {
+"tone": "light",
+"lum": 171
+},
+"emirates-skycargo": {
+"tone": "dark",
+"lum": 66
+},
+"china-southern-cargo": {
+"tone": "dark",
+"lum": 73
+},
+"eva-air-cargo": {
+"tone": "mid",
+"lum": 125
+},
+"brussels-airlines-cargo": {
+"tone": "dark",
+"lum": 29
+},
+"saudia-cargo": {
+"tone": "dark",
+"lum": 81
+},
+"astral-aviation": {
+"tone": "mid",
+"lum": 160
+},
+"latam-cargo-colombia": {
+"tone": "dark",
+"lum": 23
+},
+"qatar-airways-cargo": {
+"tone": "dark",
+"lum": 35
+},
+"cargolux-italia": {
+"tone": "dark",
+"lum": 21
+},
+"air-china-cargo": {
+"tone": "dark",
+"lum": 0
+},
+"kenya-airways-cargo": {
+"tone": "dark",
+"lum": 68
+},
+"cathay-cargo": {
+"tone": "dark",
+"lum": 75
+},
+"air-canada-cargo": {
+"tone": "dark",
+"lum": 28
+},
+"korean-air-cargo": {
+"tone": "dark",
+"lum": 63
+},
+"sun-country-cargo": {
+"tone": "mid",
+"lum": 140
+},
+"oman-air-cargo": {
+"tone": "mid",
+"lum": 166
+},
+"ana-cargo": {
+"tone": "dark",
+"lum": 39
+},
+"northern-air-cargo": {
+"tone": "dark",
+"lum": 50
+},
+"abx-air": {
+"tone": "dark",
+"lum": 56
+},
+"hawaiian-air-cargo": {
+"tone": "mid",
+"lum": 166
+},
+"thai-airways-cargo": {
+"tone": "dark",
+"lum": 75
+},
+"fedex-express": {
+"tone": "dark",
+"lum": 55
+},
+"dhl-air-austria": {
+"tone": "mid",
+"lum": 148
+},
+"china-cargo-airlines": {
+"tone": "mid",
+"lum": 121
+},
+"air-india-cargo": {
+"tone": "dark",
+"lum": 87
+},
+"air-france-cargo": {
+"tone": "dark",
+"lum": 21
+},
+"aeromexico-cargo": {
+"tone": "dark",
+"lum": 46
+},
+"atlas-air": {
+"tone": "dark",
+"lum": 73
+},
+"suparna-airlines": {
+"tone": "dark",
+"lum": 64
+},
+"gollog-cargo": {
+"tone": "mid",
+"lum": 130
+},
+"south-african-airways-cargo": {
+"tone": "mid",
+"lum": 111
+},
+"challenge-airlines-belgium": {
+"tone": "dark",
+"lum": 77
+},
+"aerolineas-argentinas-cargo": {
+"tone": "dark",
+"lum": 41
+},
+"klm-cargo": {
+"tone": "mid",
+"lum": 133
+},
+"aloha-air-cargo": {
+"tone": "mid",
+"lum": 157
+},
+"iberia-cargo": {
+"tone": "dark",
+"lum": 80
+},
+"tap-air-cargo": {
+"tone": "mid",
+"lum": 122
+},
+"royal-jordanian-cargo": {
+"tone": "light",
+"lum": 240
+},
+"european-air-transport-leipzig": {
+"tone": "mid",
+"lum": 148
+},
+"copa-cargo": {
+"tone": "dark",
+"lum": 82
+},
+"asiana-cargo": {
+"tone": "dark",
+"lum": 94
+},
+"ethiopian-cargo": {
+"tone": "dark",
+"lum": 95
+},
+"united-cargo": {
+"tone": "dark",
+"lum": 69
+},
+"cargolux": {
+"tone": "dark",
+"lum": 21
+},
+"westjet-cargo": {
+"tone": "dark",
+"lum": 76
+},
+"latam-cargo": {
+"tone": "dark",
+"lum": 23
+},
+"polar-air-cargo": {
+"tone": "dark",
+"lum": 54
+},
+"challenge-airlines-israel": {
+"tone": "light",
+"lum": 186
+},
+"asl-airlines-belgium": {
+"tone": "dark",
+"lum": 95
+},
+"singapore-airlines-cargo": {
+"tone": "dark",
+"lum": 93
+},
+"ups-airlines": {
+"tone": "dark",
+"lum": 96
+},
+"delta-cargo": {
+"tone": "dark",
+"lum": 54
+},
+"american-airlines-cargo": {
+"tone": "dark",
+"lum": 97
+},
+"avianca-cargo": {
+"tone": "light",
+"lum": 215
+},
+"amerijet-international": {
+"tone": "dark",
+"lum": 99
+},
+"aerologic": {
+"tone": "mid",
+"lum": 157
+},
+"national-airlines": {
+"tone": "mid",
+"lum": 131
+},
+"air-new-zealand-cargo": {
+"tone": "dark",
+"lum": 42
+},
+"vietnam-airlines-cargo": {
+"tone": "mid",
+"lum": 118
+},
+"jal-cargo": {
+"tone": "dark",
+"lum": 0
+},
+"azul-cargo-express": {
+"tone": "dark",
+"lum": 64
+},
+"dhl-air-uk": {
+"tone": "mid",
+"lum": 148
+},
+"western-global-airlines": {
+"tone": "dark",
+"lum": 96
+},
+"airzeta": {
+"tone": "dark",
+"lum": 62
+},
+"qantas-freight": {
+"tone": "dark",
+"lum": 50
+},
+"sas-cargo": {
+"tone": "dark",
+"lum": 15
+},
+"british-airways-world-cargo": {
+"tone": "dark",
+"lum": 57
+},
+"cargojet-airways": {
+"tone": "dark",
+"lum": 19
+},
+"alaska-air-cargo": {
+"tone": "dark",
+"lum": 40
+},
+"air-hong-kong": {
+"tone": "dark",
+"lum": 52
+},
+"srilankan-cargo": {
+"tone": "dark",
+"lum": 89
+},
+"garuda-indonesia-cargo": {
+"tone": "dark",
+"lum": 73
+},
+"austrian-cargo": {
+"tone": "dark",
+"lum": 69
+},
+"kuwait-airways-cargo": {
+"tone": "dark",
+"lum": 43
+},
+"biman-cargo": {
+"tone": "dark",
+"lum": 97
+},
+"hong-kong-air-cargo": {
+"tone": "dark",
+"lum": 34
+},
+"nippon-cargo-airlines": {
+"tone": "dark",
+"lum": 27
+},
+"turkish-cargo": {
+"tone": "dark",
+"lum": 55
+},
+"air-transport-international": {
+"tone": "dark",
+"lum": 48
+},
+"etihad-cargo": {
+"tone": "mid",
+"lum": 143
+},
+"air-europa-cargo": {
+"tone": "dark",
+"lum": 101
+},
+"icelandair-cargo": {
+"tone": "dark",
+"lum": 28
+},
+"china-eastern-cargo": {
+"tone": "dark",
+"lum": 46
+},
+"gulf-air-cargo": {
+"tone": "dark",
+"lum": 43
+},
+"silk-way-west-airlines": {
+"tone": "dark",
+"lum": 75
+},
+"egyptair-cargo": {
+"tone": "dark",
+"lum": 34
+},
+"malaysia-airlines-cargo": {
+"tone": "light",
+"lum": 204
+},
+"martinair-cargo": {
+"tone": "dark",
+"lum": 81
+},
+"swiss-worldcargo": {
+"tone": "dark",
+"lum": 74
+},
+"asl-airlines-ireland": {
+"tone": "light",
+"lum": 215
+},
+"china-postal-airlines": {
+"tone": "light",
+"lum": 208
+},
+"carlyle-aviation-partners": {
+"tone": "placeholder",
+"lum": 87
+},
+"air-charter-service": {
+"tone": "dark",
+"lum": 54
+},
+"air-partner": {
+"tone": "dark",
+"lum": 51
+},
+"chapman-freeborn": {
+"tone": "dark",
+"lum": 67
+},
+"avinode-marketplace": {
+"tone": "dark",
+"lum": 104
+},
+"paramount-business-jets": {
+"tone": "light",
+"lum": 170
+},
+"jet-linx": {
+"tone": "dark",
+"lum": 0
+},
+"xo": {
+"tone": "dark",
+"lum": 95
+},
+"fxair": {
+"tone": "light",
+"lum": 248
+},
+"netjets": {
+"tone": "dark",
+"lum": 0
+},
+"flexjet": {
+"tone": "light",
+"lum": 183
+},
+"vistajet": {
+"tone": "dark",
+"lum": 104
+},
+"wheels-up": {
+"tone": "dark",
+"lum": 63
+},
+"flyexclusive": {
+"tone": "light",
+"lum": 240
+},
+"solairus-aviation": {
+"tone": "dark",
+"lum": 103
+},
+"luxaviation": {
+"tone": "dark",
+"lum": 29
+},
+"globeair": {
+"tone": "dark",
+"lum": 80
+},
+"air-hamburg": {
+"tone": "dark",
+"lum": 57
+},
+"execujet": {
+"tone": "dark",
+"lum": 21
+},
+"clay-lacy-aviation": {
+"tone": "light",
+"lum": 196
+},
+"gama-aviation": {
+"tone": "dark",
+"lum": 82
+},
+"planesense": {
+"tone": "light",
+"lum": 248
+},
+"airshare": {
+"tone": "dark",
+"lum": 66
+}
+}

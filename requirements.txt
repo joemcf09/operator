@@ -1,0 +1,16 @@
+flask>=3.0
+
+# Native desktop window.
+#   Windows : uses the Edge WebView2 runtime built into Windows 10/11 — nothing to install
+#   macOS   : uses WebKit through pyobjc
+#   Linux   : uses GTK (install python3-gi gir1.2-webkit2-4.1) or Qt (pip install pyqt6 qtpy)
+# If no window can be created, Operator falls back to an app-mode browser window.
+pywebview>=5.0
+pyobjc-core>=10.0; sys_platform == "darwin"
+pyobjc-framework-Cocoa>=10.0; sys_platform == "darwin"
+pyobjc-framework-WebKit>=10.0; sys_platform == "darwin"
+
+# MSFS 2020/2024 and Prepar3D telemetry. Windows only; X-Plane needs nothing extra.
+SimConnect>=0.4.26; sys_platform == "win32"
+
+# Optional FSUIPC fallback (FSX/P3D/MSFS with FSUIPC7): pip install fsuipc

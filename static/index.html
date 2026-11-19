@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Operator — Ferry, Cargo &amp; ACMI</title>
+<link rel="icon" href="/static/brand/favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="/static/brand/mark.svg">
+<link rel="apple-touch-icon" href="/static/brand/icon-256.png">
+<meta name="theme-color" content="#1b2735">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<div id="app">
+  <div class="menubar">
+    <div class="brand"><img src="/static/brand/mark-light.svg" alt=""><span class="nm">Operator</span> <span>Ferry, Cargo &amp; ACMI</span></div>
+    <div class="m" data-view="dashboard">Company</div>
+    <div class="m" data-view="fleet">Fleet</div>
+    <div class="m" data-view="ferry">Contracts</div>
+    <div class="m" data-view="dispatch">Flight</div>
+    <div class="m" data-view="finance">Finance</div>
+    <div class="m" data-view="settings">Settings</div>
+    <div class="m" data-view="help">Help</div>
+    <div class="right"><span id="mb-sim">Sim: —</span><span id="mb-clock">—</span></div>
+  </div>
+  <div class="titlebar" id="titlebar"></div>
+  <div class="body">
+    <nav class="tree" id="tree"></nav>
+    <main id="view"></main>
+  </div>
+  <div class="statusbar" id="statusbar"></div>
+</div>
+<div id="modal"></div>
+<div id="toast"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

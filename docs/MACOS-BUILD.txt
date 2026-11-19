@@ -1,0 +1,113 @@
+================================================================================
+  OPERATOR - BUILDING THE macOS VERSION
+================================================================================
+
+  You need a Mac to build a Mac app. There is no way round this: the build has
+  to run on macOS. Half an hour on someone else's laptop is enough, and nothing
+  is left behind afterwards except the folder you copied over.
+
+
+--------------------------------------------------------------------------------
+  WHAT TO INSTALL ON THE MAC
+--------------------------------------------------------------------------------
+
+  One thing: Python 3.10 or newer.
+
+      https://www.python.org/downloads/macos/
+
+  Download the "macOS 64-bit universal2 installer", run it, click through. That
+  is the whole prerequisite list. Everything else - PyInstaller, Flask, the
+  window library - is downloaded automatically into a folder inside the project
+  and disappears when you delete it.
+
+  You do NOT need Xcode, Homebrew, an Apple Developer account or a paid
+  certificate to build. You only need a developer account if you later want to
+  sign and notarise the app so macOS stops warning about it.
+
+
+--------------------------------------------------------------------------------
+  WHAT TO DO
+--------------------------------------------------------------------------------
+
+  1. Copy the Operator source folder to the Mac - USB stick, AirDrop, cloud
+     folder, whatever is easiest. Put it somewhere simple like the Desktop.
+
+  2. Open Terminal (Applications > Utilities > Terminal, or Spotlight "term").
+
+  3. Change into the folder. The easy way: type "cd " with a space, then drag
+     the folder from Finder onto the Terminal window and press Return.
+
+         cd ~/Desktop/operator
+
+  4. Run the build:
+
+         chmod +x build-mac.sh
+         ./build-mac.sh
+
+     It takes a few minutes. When it finishes, Finder opens the dist folder
+     containing:
+
+         Operator.app                    the application
+         Operator-1.0.0-macOS.dmg        the file you upload
+         SHA256SUMS-macOS.txt
+
+  5. Test it before you ship it: open the .dmg, drag Operator to Applications,
+     launch it from there. The first launch needs the right-click trick below.
+
+  6. Copy the .dmg back to your PC and upload it.
+
+
+--------------------------------------------------------------------------------
+  APPLE SILICON vs INTEL - READ THIS
+--------------------------------------------------------------------------------
+
+  The build only runs on the same kind of processor it was built on.
+
+    Built on an Apple Silicon Mac (M1/M2/M3/M4)  ->  runs on Apple Silicon only
+    Built on an Intel Mac                        ->  runs on Intel only
+
+  The build script prints which one it made. Say so in your upload description,
+  for example "macOS (Apple Silicon)". Most Macs sold since late 2020 are Apple
+  Silicon, so that covers the majority.
+
+  If you want one file for both, you need a universal2 build: install the
+  universal2 Python from python.org and add --target-arch universal2 to the
+  PyInstaller line in build-mac.sh. It is slower and occasionally fails on a
+  dependency, so only bother if people ask.
+
+
+--------------------------------------------------------------------------------
+  GATEKEEPER - WHAT YOUR USERS WILL SEE
+--------------------------------------------------------------------------------
+
+  The app is not code-signed, so on first launch macOS says Operator "cannot be
+  opened because it is from an unidentified developer", or "is damaged".
+
+  Tell users to do this once:
+
+      Right-click (or Control-click) Operator in Applications, choose Open,
+      then click Open again in the dialog.
+
+  If macOS insists the app is damaged, that is the quarantine flag; this clears
+  it:
+
+      xattr -dr com.apple.quarantine /Applications/Operator.app
+
+  Both are normal for unsigned software. Removing the warning entirely needs an
+  Apple Developer account (99 USD a year) plus signing and notarising the app.
+
+
+--------------------------------------------------------------------------------
+  WHAT MAC USERS GET
+--------------------------------------------------------------------------------
+
+  The same program: its own window, its own Dock icon, no Terminal, no Python
+  needed on their machine. Saves live inside the application's own folder.
+
+  X-Plane 11 and 12 are fully supported over UDP, and X-Plane may even be
+  running on a different computer.
+
+  MSFS and Prepar3D are not supported on macOS, because SimConnect is a Windows
+  library. That is a limitation of the simulators, not of Operator.
+
+================================================================================

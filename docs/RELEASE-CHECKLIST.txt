@@ -1,0 +1,56 @@
+================================================================================
+  OPERATOR - RELEASE CHECKLIST
+================================================================================
+
+  BUILD
+  -----
+  1. run.bat            once, confirm the program starts and a company loads
+  2. make-installer.bat  builds everything and opens installer\Output
+
+  You get four files in installer\Output:
+
+    Operator-<ver>-Windows-Installer.zip      the installer, zipped
+    Operator-<ver>-Windows-Portable.zip       same build, no installation
+    Operator-<ver>-Source-CrossPlatform.zip   runs on Windows, macOS, Linux
+    SHA256SUMS.txt                            checksums for all of them
+
+
+  TEST BEFORE UPLOADING
+  ---------------------
+  [ ] Install from the installer onto a clean path (NOT your development folder)
+  [ ] Start from the Start menu shortcut - the window opens, no console left over
+  [ ] Create a company, hire a dispatcher and crew, accept a ferry job
+  [ ] Send to SimBrief, generate, confirm the OFP comes back on its own
+  [ ] Dispatch, connect the simulator, fly a short sector, file the PIREP
+  [ ] Check the PIREP numbers: block time, fuel, touchdown rate all sane
+  [ ] Close the program mid-flight and reopen it - the sector resumes
+  [ ] Uninstall, confirm it asks about keeping saves, confirm nothing is left
+
+
+  WHAT TO UPLOAD (WINDOWS RELEASE)
+  --------------------------------
+  flightsim.to and forums.x-plane.org
+
+      Operator-<ver>-Windows-Installer.zip     the main download
+      Operator-<ver>-Windows-Portable.zip      optional, for people who avoid
+                                               installers
+      SHA256SUMS.txt                           so anyone can verify a download
+
+  Say plainly in the description: Windows only for now. X-Plane users on
+  Windows are fully supported; a macOS build is planned but not released.
+
+  When you are ready for macOS, everything needed is already in the source:
+  build-mac.sh and docs/MACOS-BUILD.txt. It has to be built on a Mac.
+
+
+  SAY THIS IN THE DESCRIPTION
+  ---------------------------
+  - Windows SmartScreen will warn about an unrecognised publisher; the build is
+    not code-signed. More info -> Run anyway.
+  - It runs a local server on 127.0.0.1 and opens its own window. Nothing is
+    uploaded; there is no account and no telemetry.
+  - MSFS and Prepar3D need Operator on the same PC (SimConnect). X-Plane needs
+    nothing installed and can be on another machine.
+  - Ask for operator-log.txt with any bug report.
+
+================================================================================

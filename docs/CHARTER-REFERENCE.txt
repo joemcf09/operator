@@ -1,0 +1,389 @@
+================================================================================
+  OPERATOR - CHARTER: BROKERS, CLIENTS AND TRIP TYPES
+  Reference for the private charter line of business
+================================================================================
+
+  Brokers and competing operators are real companies, named and shown with their
+  own marks to identify who places the work and who you lose it to. Their
+  appearance implies no affiliation or endorsement, and no trademark rights are
+  transferred. Sources for every mark are listed in the program under
+  System > Credits. Clients are generic types, not real people or
+  organisations: naming actual charter clients would be inappropriate.
+
+
+--------------------------------------------------------------------------------
+  BROKERS - who brings you the work
+--------------------------------------------------------------------------------
+
+  Every enquiry arrives through one of these. The 'fussy' figure is how hard
+  they are to win on price: above 1.00 means they push back harder on a high
+  quote, below 1.00 means they are more price-led and easier to undercut.
+
+  Air Charter Service
+      the largest broker by volume, everything from light jets to freighters
+      appears often - price sensitivity 1.00
+
+  Avinode marketplace
+      the industry's booking marketplace: fast, price-led
+      appears often - price sensitivity 0.90
+
+  Air Partner
+      part of Wheels Up; corporate and group work
+      appears regularly - price sensitivity 1.05
+
+  Chapman Freeborn
+      broad broker, strong on group and cargo
+      appears regularly - price sensitivity 0.95
+
+  Paramount Business Jets
+      vets operators closely and expects paperwork
+      appears regularly - price sensitivity 1.05
+
+  XO
+      Vista's digital marketplace; app-driven and price-transparent
+      appears regularly - price sensitivity 1.00
+
+  Direct client
+      no broker in the middle: the client is judging you directly
+      appears regularly - price sensitivity 1.15
+
+  Jet Linx
+      membership operator that sources lift locally
+      appears occasionally - price sensitivity 1.10
+
+  FXAir
+      formerly PrivateFly, now part of the Directional group
+      appears occasionally - price sensitivity 1.05
+
+
+--------------------------------------------------------------------------------
+  CLIENT TYPES - who is actually on board
+--------------------------------------------------------------------------------
+
+  Each type pays differently and, more importantly, judges the trip
+  differently. The percentages are how much of their satisfaction score comes
+  from each thing. Tolerance is how forgiving they are of a late departure:
+  below 1.00 is less forgiving than average.
+
+  Corporate group
+      a board party travelling to a site visit
+      judges you on: punctuality 45% - a smooth flight 30% - the right cabin 25%
+      pays 1.00x the going rate - lateness tolerance 1.00
+
+  Private owner
+      a family trip with luggage and a dog
+      judges you on: a smooth flight 45% - the right cabin 30% - punctuality 25%
+      pays 1.05x the going rate - lateness tolerance 0.90
+
+  Investment fund
+      due diligence visits, several cities in as few days as possible
+      judges you on: punctuality 60% - a smooth flight 25% - the right cabin 15%
+      pays 1.15x the going rate - lateness tolerance 0.75
+
+  Sports team
+      a squad, coaching staff and their kit
+      judges you on: punctuality 50% - a smooth flight 25% - the right cabin 25%
+      pays 0.92x the going rate - lateness tolerance 1.10
+
+  Film production
+      crew, camera equipment and a tight shooting schedule
+      judges you on: punctuality 55% - the right cabin 25% - a smooth flight 20%
+      pays 0.98x the going rate - lateness tolerance 1.00
+
+  Government delegation
+      an official visit with protocol requirements
+      judges you on: punctuality 55% - the right cabin 25% - a smooth flight 20%
+      pays 1.25x the going rate - lateness tolerance 0.70
+
+  Medical transfer
+      a patient with a medical escort and equipment
+      judges you on: punctuality 65% - a smooth flight 30% - the right cabin 5%
+      pays 1.10x the going rate - lateness tolerance 0.60
+
+  Tour operator
+      a group connecting to a cruise departure
+      judges you on: punctuality 55% - the right cabin 25% - a smooth flight 20%
+      pays 0.88x the going rate - lateness tolerance 1.20
+
+  Music tour
+      a band, management and instruments between show nights
+      judges you on: punctuality 45% - a smooth flight 35% - the right cabin 20%
+      pays 1.02x the going rate - lateness tolerance 1.00
+
+  Head of state visit
+      a state visit with security and strict timings
+      judges you on: punctuality 70% - a smooth flight 20% - the right cabin 10%
+      pays 1.35x the going rate - lateness tolerance 0.50
+
+
+--------------------------------------------------------------------------------
+  TRIP TYPES - the shape of the work
+--------------------------------------------------------------------------------
+
+  One-way  -  pays about 1.00x a single sector
+      A single sector. You position in empty and go home empty unless you can
+      sell the leg.
+
+  Day return  -  pays about 1.85x a single sector  (returns)
+      Out in the morning, wait on the ground, home the same evening. The
+      crew's day is long.
+
+  Overnight  -  pays about 1.95x a single sector  (returns, 2 day(s))
+      Out one day, back another. Crew hotel and per diem are yours to pay.
+
+  Multi-city roadshow  -  pays about 2.90x a single sector  (returns, 3 day(s), 2 extra stop(s))
+      Several cities in as few days as possible. Every sector counts and the
+      schedule is unforgiving.
+
+  Short notice  -  pays about 1.35x a single sector  (short notice)
+      Wheels up within a day or two. Pays well because nobody else can cover
+      it.
+
+  Tour leg  -  pays about 1.50x a single sector  (1 day(s), 1 extra stop(s))
+      One leg of a longer itinerary, handed to you because the regular
+      operator is short.
+
+  Group charter  -  pays about 1.25x a single sector
+      More passengers than a light jet will take. Cabin size decides whether
+      you can bid at all.
+
+  Long range  -  pays about 1.15x a single sector  (1 day(s))
+      Intercontinental, with customs at both ends and a crew close to their
+      duty limit.
+
+  Event peak  -  pays about 1.60x a single sector  (1 day(s), event surge)
+      Everyone wants the same airport on the same day. Rates rise, slots are
+      scarce.
+
+  Medical transfer  -  pays about 1.50x a single sector  (short notice)
+      A patient and escort, on a schedule set by a hospital rather than a
+      diary.
+
+  Empty leg  -  a discounted one-off
+      When a trip leaves your aircraft away from base, a passenger may ask
+      about the leg home at 22-45% of the normal rate.
+
+
+--------------------------------------------------------------------------------
+  REQUIREMENTS - what a trip can demand
+--------------------------------------------------------------------------------
+
+  Checked against your fleet before you can bid. Some block the quote
+  outright; others are noted and cost you the client's goodwill.
+
+  skis and boards in the baggage hold
+      requires baggage volume - price effect 1.05x
+  golf clubs for four
+      requires baggage volume - price effect 1.00x
+  a dog travelling in the cabin
+      price effect 1.05x
+  catering from a named restaurant
+      price effect 1.10x
+  customs and immigration on arrival
+      requires customs and immigration - price effect 1.05x
+  a cabin attendant throughout
+      requires a cabin attendant - price effect 1.15x
+  wi-fi that works over the ocean
+      requires connectivity - price effect 1.10x
+  a wheelchair and assistance at both ends
+      price effect 1.05x
+  press waiting at the destination
+      price effect 1.10x
+  discretion: no tail number published
+      price effect 1.05x
+  a short runway at the destination
+      requires a short runway - price effect 1.10x
+  an early departure before the noise curfew lifts
+      requires a curfew departure - price effect 1.08x
+
+  Always checked, whatever the trip asks for:
+      seats against passenger count - cabin class against expectation
+      runway length at every field on the itinerary
+      range without a fuel stop on the longest sector
+      a cabin attendant for eight or more passengers, or flights over five hours
+      customs when the trip crosses a border
+
+
+--------------------------------------------------------------------------------
+  EVENT PEAKS
+--------------------------------------------------------------------------------
+
+  Event trips pay about 25% above the going rate and cluster on a few airports.
+
+  the Monaco Grand Prix              LFMN, LIML
+  the Davos forum                    LSGG, LSZH
+  the Super Bowl                     KDAL, KLAS, KMIA
+  the Cannes festival                LFMN
+  the Masters                        KATL, KCLT
+  the Farnborough air show           EGGW, EGLF
+  Art Basel                          KMIA, LSZH
+  the Ryder Cup                      EIDW, KORD
+  a heads-of-state summit            EBBR, LFPB
+  the Dubai air show                 OMDB, OMDW
+
+
+--------------------------------------------------------------------------------
+  COMPETING OPERATORS - who takes the trips you lose
+--------------------------------------------------------------------------------
+
+  NetJets                   Flexjet                   VistaJet
+  Wheels Up                 flyExclusive              Jet Linx
+  Solairus Aviation         Luxaviation               GlobeAir
+  Air Hamburg               ExecuJet                  Clay Lacy Aviation
+  Gama Aviation             PlaneSense                Airshare
+  Nicholas Air
+
+
+--------------------------------------------------------------------------------
+  BUSINESS AIRCRAFT IN THE SIMULATION
+--------------------------------------------------------------------------------
+
+  Type                           Category            Seats   Range  Rating
+  Dassault Falcon 8X             Heavy jet              14  6,450n  Falcon
+  Bombardier Global 7500         Heavy jet              17  7,700n  Global
+  Gulfstream G650ER              Heavy jet              16  7,500n  Gulfstream
+  Cessna Citation CJ4            Light jet               9  1,930n  Citation
+  Embraer Phenom 300E            Light jet               9  2,010n  Phenom
+  Cessna Citation XLS+           Midsize jet             9  2,100n  Citation
+  Bombardier Challenger 350      Super-midsize jet      10  3,200n  Challenger
+  Embraer Praetor 600            Super-midsize jet      12  4,018n  Praetor
+  Beechcraft King Air 350i       Turboprop               9  1,800n  King Air
+  Pilatus PC-12 NGX              Turboprop               8  1,800n  PC-12
+
+--------------------------------------------------------------------------------
+  WHAT TO FLY IN THE SIMULATOR
+--------------------------------------------------------------------------------
+
+  Operator records what you fly, not which add-on you own. If you do not have
+  the aircraft a job names, fly something of a similar size and speed - the
+  tracking, the loadsheet and the scoring work the same way.
+
+  Bombardier Global 7500  (Heavy jet)
+      add-on: Default Gulfstream G550 stands in well
+      or fly: G650ER, Falcon 8X, Boeing BBJ
+
+  Dassault Falcon 8X  (Heavy jet)
+      add-on: Default Gulfstream G550, or any long-range heavy jet
+      or fly: G650ER, Global 7500, Falcon 900
+
+  Gulfstream G650ER  (Heavy jet)
+      add-on: Default Gulfstream G550 or the FlightFX Citation X for MSFS;
+      Hot Start Challenger for X-Plane
+      or fly: Global 7500, Falcon 8X, Bombardier Global Express
+
+  Cessna Citation CJ4  (Light jet)
+      add-on: Default Cessna Citation CJ4 (MSFS)
+      or fly: Phenom 300, Citation M2, Learjet 35/45
+
+  Embraer Phenom 300E  (Light jet)
+      add-on: Default Embraer Phenom 300 (MSFS)
+      or fly: Citation CJ4, Citation M2, Learjet 35
+
+  Cessna Citation XLS+  (Midsize jet)
+      add-on: Flysimware Citation Excel/XLS, or the default Citation CJ4
+      or fly: Hawker 800XP, Learjet 45/75, Phenom 300
+
+  Hawker 800XP  (Midsize jet)
+      add-on: FlightFX Hawker 800XP (MSFS 2024 Marketplace)
+      or fly: Cessna Citation XLS+, Learjet 45/75, Citation Latitude, Hawker
+      900XP
+
+  Bombardier Challenger 350  (Super-midsize jet)
+      add-on: Hot Start Challenger 650 (X-Plane) or Citation Longitude (MSFS
+      default)
+      or fly: Citation Longitude, Praetor 600, Gulfstream G550, Hawker 800XP
+      for shorter sectors
+
+  Embraer Praetor 600  (Super-midsize jet)
+      add-on: Citation Longitude (MSFS default) as the nearest super-midsize
+      or fly: Challenger 350, Citation X, Gulfstream G550
+
+  Beechcraft King Air 350i  (Turboprop)
+      add-on: Black Square Starship / Analog King Air, or the default King
+      Air 350i
+      or fly: PC-12, TBM 960, Beechcraft Baron for short hops
+
+  Pilatus PC-12 NGX  (Turboprop)
+      add-on: Carenado or SimWorks Studios PC-12 (MSFS), Hot Start TBM or
+      default TBM 930
+      or fly: TBM 930/960, King Air 350i, Kodiak 100
+
+--------------------------------------------------------------------------------
+  GROUP CHARTER CLIENTS
+--------------------------------------------------------------------------------
+
+  A whole airliner hired by one party. Priced by the block hour for the
+  aircraft, against a minimum charge, and flown with rostered cabin crew -
+  one for every fifty passengers.
+
+  Tour operator
+      a holiday charter, full aircraft, fixed dates
+      from 90 passengers - pays 0.92x - tolerance 1.20
+      judges you on: punctuality 55% - the right cabin 25% - a smooth flight 20%
+      asks for: cabin crew, hold baggage for every passenger
+
+  Cruise line
+      passengers joining a ship, and the ship will not wait
+      from 120 passengers - pays 1.05x - tolerance 0.60
+      judges you on: punctuality 70% - a smooth flight 15% - the right cabin 15%
+      asks for: cabin crew, hold baggage for every passenger
+
+  Football club
+      the first team, staff and kit to an away fixture
+      from 45 passengers - pays 1.12x - tolerance 0.80
+      judges you on: punctuality 55% - a smooth flight 30% - the right cabin 15%
+      asks for: cabin crew, kit in the hold, a late-night return after the
+      match
+
+  Government charter
+      an official delegation and press corps
+      from 60 passengers - pays 1.30x - tolerance 0.60
+      judges you on: punctuality 65% - a smooth flight 20% - the right cabin 15%
+      asks for: cabin crew, security screening, protocol arrangements
+
+  Troop rotation
+      a military rotation with duffle and equipment
+      from 100 passengers - pays 1.15x - tolerance 0.90
+      judges you on: punctuality 60% - the right cabin 25% - a smooth flight 15%
+      asks for: cabin crew, heavy hold load, clearances for the destination
+
+  Pilgrimage charter
+      a Hajj or Umrah group travelling together
+      from 150 passengers - pays 1.00x - tolerance 1.10
+      judges you on: punctuality 50% - a smooth flight 25% - the right cabin 25%
+      asks for: cabin crew, extra hold baggage, catering to requirement
+
+  Mining rotation
+      a fly-in fly-out shift change to a remote strip
+      from 70 passengers - pays 1.18x - tolerance 0.70
+      judges you on: punctuality 65% - the right cabin 20% - a smooth flight 15%
+      asks for: cabin crew, a short and rough runway at one end
+
+  Music tour
+      the band, the crew and the production to the next show
+      from 50 passengers - pays 1.10x - tolerance 0.90
+      judges you on: punctuality 50% - a smooth flight 30% - the right cabin 20%
+      asks for: cabin crew, flight cases in the hold, an overnight turn
+
+  Airline disruption cover
+      stranded passengers from a cancelled service
+      from 110 passengers - pays 1.25x - tolerance 0.40
+      judges you on: punctuality 80% - a smooth flight 10% - the right cabin 10%
+      asks for: cabin crew, wheels up within a day
+
+  Incentive travel
+      a company taking its staff somewhere warm
+      from 80 passengers - pays 1.08x - tolerance 1.00
+      judges you on: punctuality 45% - a smooth flight 35% - the right cabin 20%
+      asks for: cabin crew, catering to requirement
+
+  Hourly rates for the whole aircraft, before the client multiplier:
+
+      Turboprop   $3,100/block hour
+      Regional    $4,800/block hour
+      Narrowbody  $8,600/block hour
+      Widebody    $19,500/block hour
+
+  Minimum charge: 1.5 hours turboprop, 2.0 regional, 2.5 narrowbody, 3.0 widebody.
+
+================================================================================

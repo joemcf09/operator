@@ -1,0 +1,715 @@
+================================================================================
+  OPERATOR - CHANGELOG
+================================================================================
+
+  1.8.0
+  -----
+    Added: type ratings on the air operator certificate. A certificate names the
+    types you may operate, and when you found a company you can now have yours
+    issued for one of them. Ferry, cargo, ACMI and charter work is then only
+    offered on that type, nothing else can be released under the certificate, and
+    the crew market fills with people rated on it. If you want the game to be
+    about one aeroplane, it now is.
+
+    Adding another type is an amendment, exactly as adding an area is: a training
+    programme, a maintenance programme, manuals and a proving flight, so the
+    authority charges for it and takes its time. About $36,000 and four weeks for
+    a turboprop, $98,000 and seven weeks for a narrowbody, $185,000 and ten weeks
+    for a widebody, and the larger classes want a reputation behind them first. A
+    second type from a manufacturer already on your certificate is roughly a
+    quarter cheaper and quicker, because the training organisation, the maintenance
+    programme and the inspector are the same people. Applications are listed on the
+    Company profile with the date a decision is due.
+
+    You can still buy or lease an aircraft you are not approved for - the market
+    marks it - but it stays on the ground until the type is on your certificate.
+
+    An existing company is unaffected: certificates issued before 1.8.0 carry no
+    type restriction, and nothing about them changes.
+
+    Added: business-aircraft ferry work. A certificate issued for a Citation or a
+    Gulfstream had no ferry board worth the name, because every ferry job was an
+    airliner moving between a lessor and an airline. Business aircraft are moved by
+    the people who actually move them: management companies and operators -
+    NetJets, Flexjet, VistaJet, Jet Aviation, Luxaviation, Clay Lacy, Solairus and
+    others - and the brokers who sell them. The heavy work goes to the
+    manufacturer's own service centre rather than an airline shop, at the real
+    locations: Gulfstream at Savannah, Appleton, Van Nuys, Fort Worth and
+    Farnborough; Bombardier at Dallas Love, Opa-locka, Bradley, Tucson, Wichita,
+    Biggin Hill, Berlin, Seletar, Tianjin and Essendon; Textron across its
+    company-owned network; Dassault at Le Bourget, Merignac, Geneva, Little Rock
+    and Reno; Embraer at Sao Jose dos Campos, Melbourne, Fort Lauderdale Executive
+    and Le Bourget; Pilatus at Rocky Mountain Metropolitan. The jobs are the real
+    ones: positioning for a scheduled inspection, collecting the aeroplane
+    afterwards, moving it for a pre-purchase inspection, delivering it after a
+    sale, an import on a new registry, and an empty leg because it is needed at the
+    other end. These appear for every company, not only type-restricted ones.
+
+    Added: delivery to base. Buying or leasing an aircraft now asks what you want
+    done with it. Have it delivered and the seller or lessor puts a contract crew
+    on it and positions it to your base for a fee - fuel, fees at every stop, two
+    pilots for the days it takes, their way home and a ferry insurance binder, plus
+    the arrangement margin - and it is unavailable until it lands, which takes a
+    day or two across a country and the better part of a week across an ocean. Or
+    collect it yourself, pay nothing, and fly it home in the simulator as a sector
+    of your own. A Caravan from London to Cincinnati is nine legs and six days; a
+    747 from Hong Kong is three legs and four. The fleet screen shows what is in
+    transit and when it arrives.
+
+    Added: crew files can be renamed, so you can put your own name on the roster
+    and mark the file as yours. It shows on the roster, the dispatch sheet and your
+    PIREPs. Duty limits, currency and payroll work the same either way; this is a
+    first step towards the player being a pilot properly, which needs more thought
+    than a name field.
+
+    Changed: a sector handed to the company crew now takes the time it should. On
+    the game clock nothing is different - the clock is yours to move, so it files
+    at once and the clock jumps by the block time. On a real-time or simulator
+    clock the aeroplane is genuinely away: it goes off blocks now, arrives at its
+    ETA, and the aircraft and both pilots are committed until it lands. Dispatch
+    and the schedule board show it running down, and the PIREP files itself on
+    arrival. A sector in the air cannot be cancelled, taken over or filed by hand.
+    Several can be in the air at once and they file in the order they land.
+
+    Added: --host and --lan, so Operator can live on a machine that is always on -
+    a home server, a Proxmox container, a NAS - and be opened from whichever PC you
+    are flying on. It prints the address to use, opens no window and no browser on
+    a headless box, and --port moves it off 8123. X-Plane telemetry already works
+    across a network, so the simulator can be on a third machine. There is no login
+    and no password, so keep it to a network you trust.
+
+    Changed: the simulation is faster again. Overflown countries and route
+    remoteness are worked out once per city pair instead of on every job composed,
+    route feasibility is cached, and picking a maintenance or storage site measures
+    each candidate once rather than three times. A short-range type in a large
+    region - a Caravan out of Dubai, a Saab out of Sao Paulo - took seven seconds
+    to found a company and run a month; it now takes two.
+
+    Fixed: an empty charter board for an operator whose certificate covered only
+    business aircraft or only airliners. The board kept asking for the kind of
+    enquiry it could not build and gave up before composing the kind it could.
+
+    Fixed: the cargo and ACMI boards now say why they are empty when the types on
+    your certificate are the reason, rather than showing nothing at all.
+
+
+  1.7.0
+  -----
+    Added: areas of operation, as an air operator certificate actually specifies
+    them. A new certificate authorises the region it was issued in - a company at
+    East Midlands may operate in Europe, one at Cincinnati in North America - and
+    work is only offered inside it. A sector to a field outside it cannot be
+    released; the dispatcher says which area is missing.
+
+    Adding an area is an amendment to the operations specifications: an application
+    to the authority with a fee and a wait. The region next door is routine, about
+    $38,000 and three weeks. The other side of the world costs around $145,000,
+    takes six weeks, and the authority will not consider it below 55 reputation -
+    they want a record before extending a certificate that far. Applications are
+    listed on the Company profile with the date a decision is due.
+
+    Changed: the simulation is several times faster, and far faster outside Europe.
+    Finding the nearest airport to a point scanned all five thousand of them on every
+    call, which route planning does thousands of times a day; it now uses a spatial
+    index and gives the same answer in a fraction of the time. Runway lengths and
+    technical-stop candidates are worked out once instead of on every route, and the
+    great-circle calculation caches its coordinates. A company outside Europe took
+    three quarters of a minute to advance a week; it now takes a fifth of a second.
+
+    Every airport in the database is mapped to one of seven areas - Europe, North
+    America, South America, Africa, the Middle East, Asia and Oceania - and an
+    existing company keeps every area it has already been flying in, so no save is
+    grounded by the change.
+
+    Added: group charter. Most of the world's charter flying is a whole airliner
+    hired by one party, and it is now the second half of the charter business. Ten
+    clients who need an aeroplane rather than a business jet: tour operators on
+    holiday series, cruise lines whose ship will not wait, football clubs with the
+    squad and the kit, government delegations with a press corps, troop rotations,
+    pilgrimage groups, fly-in fly-out mining shifts, music tours with the
+    production, airlines needing disruption cover within a day, and companies
+    taking their staff somewhere warm.
+
+    It is priced the way charter really is: by the block hour for the whole
+    aircraft, from about $3,100 an hour for a turboprop to $19,500 for a widebody,
+    with the positioning allowance built in. The rates land inside the real market
+    bands for every category.
+
+    A group charter needs an aircraft that will take the party - seats, hold space
+    for their baggage or their kit - and rostered cabin crew, one for every fifty
+    passengers, which blocks the bid outright if you have not got them. Your fleet
+    is checked against every brief as before, and the quote dialog spells out what
+    the client needs.
+
+    Added: ICAO aerodrome reference codes. Every aircraft now carries its code
+    letter from its wingspan - C for the 24 to 36 metre band that covers the 737s,
+    A320s, E-Jets and turboprops, E for most widebodies - and group enquiries are
+    described in those terms, the way brokers and airports describe them.
+
+  1.6.0
+  -----
+
+    Changed: crew names are drawn as whole people rather than a first name crossed
+    with an unrelated surname. "Chen Martinez" and "Giulia Petrov" were the old
+    method showing through. There are now twenty-seven naming traditions - British,
+    Irish, German, Dutch, Nordic, Polish, Slavic, Italian, French, Iberian, Latin
+    American, Brazilian, North American, Turkish, Arabic, South Asian, Chinese,
+    Japanese, Korean, Vietnamese, Thai, Indonesian, Filipino, West, East and
+    Southern African, and Australasian - giving over four thousand combinations
+    that hold together.
+
+    A roster is drawn mostly from the country the company is based in, with the
+    international mix any real operator has: a British company hires mainly British
+    and Irish pilots alongside Poles, South Asians and South Africans, while one in
+    Dubai is mostly Gulf and South Asian. Polish and Slavic surnames take their
+    feminine form where they should - Magdalena Kowalska, not Kowalski - and no two
+    people on a roster share a first name or a surname by accident.
+    Added: several flights can be dispatched at once. Until now one flight had to
+    be filed before the next could be released, which made no sense for a company
+    with three aircraft. Up to twelve sectors can now be in progress together - one
+    per aircraft, and no pilot on two of them - and a "Dispatched flights" panel
+    lists them all with what each is doing and who is crewing it. One of them is
+    the tracked flight, the sector the simulator is following; press Track on any
+    other to move the link to it. The rest can be handed to their crews.
+
+    Changed: the Dispatch page is ordered around the flight you are operating. The
+    tracked flight and its map come first, then the list of other dispatched
+    flights, and the new-flight form folds away behind "Dispatch another flight"
+    once something is in progress.
+
+    Changed: the map is drawn as soon as a flight is dispatched, showing the route
+    and the airports along it. It used to appear only after tracking started, so a
+    planned sector had nothing to look at.
+
+    Added: an ACMI rotation can be given to the company crew. A contract publishes
+    a rotation every day whether or not you have the evening free, so a single
+    button on the contract flies today's sectors with your own pilots, keeping the
+    block-hour guarantee and the completion figures intact. The flying is scored as
+    theirs, not yours.
+
+    Added: a contract can be handed back early. Early termination is charged at
+    about a third of the remaining guarantee, up to two months of it, costs
+    reputation, and the customer remembers when they next tender. The aircraft and
+    crew are released immediately.
+
+  1.5.1
+  -----
+    Fixed: the dispatch form was laid out badly — the pax, cargo, temperature, wind
+    and runway-state fields were far wider than they needed to be, and the last of
+    them was pushed off the right-hand edge. Fields sharing a line now divide it
+    between them and are allowed to shrink. Checked at window widths from 1,100 to
+    1,920 pixels, with nothing running off the page on any screen; the aircraft
+    market, which is genuinely a wide table, scrolls sideways within its panel
+    instead.
+
+    Fixed: buying an aircraft could leave you with nobody able to fly it. Pilot
+    ratings were drawn at random across every type in the game, so a Saab 340 or a
+    DC-3 owner could find nobody on the market rated on it. The candidate list now
+    always holds two captains and two first officers for each type you operate or
+    have taken work on, topped up the moment an aircraft joins the fleet. If the
+    market is still short, the crew page explains the alternative: a type rating
+    course for one of your own pilots.
+
+    Changed: a new company is told where its first job is. Until you accept
+    something, the dashboard carries one panel naming the next thing to do, how
+    many jobs are waiting on each board, and the whole sequence from hiring a
+    dispatcher to filing the PIREP. Work is never generated on request — it is
+    already there — and several people have sat waiting for it to arrive.
+
+    Changed: SimBrief and FSUIPC are made plainly optional. Neither is needed to
+    fly: the dispatch form fills itself in from the job, and X-Plane needs nothing
+    installed at all. The wording on the dispatch page, the simulator setting and
+    the getting-started list said otherwise.
+
+    Changed: starting again is easier to find. Settings has a "Start over" panel
+    that explains what deleting the company does and returns you to the setup
+    screen.
+
+  1.5.0
+  -----
+
+    Changed: cargo pairings are priced the way a crewing contract really is, and
+    show it. The block-hour and duty-day rates are now a base, with the premiums
+    that genuinely attract more money listed separately: night pay for sectors
+    reporting between 2200 and 0500, oceanic and remote pay, a long-haul pattern
+    allowance, and special load handling. The board shows what the premiums add and
+    the detail dialog itemises the lot.
+
+    Changed: the logbook groups a job's sectors together. A four-sector pairing is
+    paid on completion, so showing it as three losses and one windfall was
+    misleading; it now has a heading with the job's total and its sectors beneath.
+    Turn it off with the tick box if you prefer a flat list.
+
+    Fixed before release: three career objectives could never be completed.
+    "Deliver a ferry job and get paid", "Complete three ferry jobs" and the cargo
+    equivalents were checked against a counter that was never written, and "Build
+    $25 million of equity" called a calculation that did not exist. Deliveries and
+    completed pairings are now counted from the record itself, so the objective
+    ticks whether or not the job is still on the board — including on a save where
+    the work was already done.
+
+    Added: your books can be kept in your own currency. Sixteen are available and
+    the right one is chosen from where your company is based - a British operator
+    starts in pounds, a German one in euros, a Canadian one in Canadian dollars.
+    Aircraft values, lease rates and block-hour rates are quoted in US dollars
+    across the industry, so that is what Operator holds internally and converts for
+    display.
+
+    Added: work near home. The cargo board now always carries three pairings within
+    reach of your base, and both the cargo and ferry boards have a filter for work
+    within 1,500 nm of it. A company at East Midlands is no longer shown nothing
+    but night freight out of Memphis.
+
+    Added: small freighters and the operators who fly them - the Douglas DC-3,
+    Cessna 208B Grand Caravan, Twin Otter, Saab 340B and ATR 42-300F, with West
+    Atlantic UK, Swiftair, Jota Aviation, Loganair, Bluebird Nordic, FedEx Feeder
+    Europe, Empire Airlines, Mountain Air Cargo, Kenn Borek, Buffalo Airways and
+    Everts Air Cargo. Feeder and island work, flown from fields a 737 could not use.
+
+    Added: the Hawker 800XP, with its own type rating, performance and weight and
+    balance figures — 2,450 nm, eight seats, 447 knots — following FlightFX's
+    release for MSFS 2024. It turns up on the market and takes charter work like
+    any other midsize jet.
+
+    Added: simulator substitutions. Every aircraft now says what to fly for it: the
+    add-on it is modelled on where one exists, and sensible stand-ins where it does
+    not, since nobody owns everything. Shown on the market before you buy, on the
+    aircraft record, and in the registration dialog, where you can record which
+    add-on you actually fly for that tail — it then appears on the active flight.
+    Operator records what you fly, not which product you own.
+
+    Fixed: cargo pairings offered aircraft that have no freighter version, and
+    carriers that have no freighters. There is no 787 freighter - a 787 carrying
+    cargo is a passenger aeroplane with freight in the hold, which is not a crew
+    pairing. Freight fleets are now freighters only: the 757-200PF, 737-800BCF and
+    ATR 72-600F have been added, and carriers listed with passenger variants are
+    corrected to the freighter they actually operate. The forty-odd cargo
+    divisions that only carry freight in the holds of passenger aircraft - United
+    Cargo, Delta Cargo, SWISS WorldCargo and the rest - no longer offer pairings,
+    while the ones that do run their own freighters, such as Alaska Air Cargo,
+    WestJet Cargo, Avianca Cargo and JAL Cargo, keep theirs.
+
+    Fixed: with the simulator set explicitly to X-Plane, MSFS or FSUIPC in
+    Settings rather than left on auto-detect, the link never registered as
+    connected. Data was arriving and being read correctly — the telemetry was
+    there all along — but the connection was never claimed, so the status sat on
+    "Waiting for X-Plane" and tracking could not be started. Auto-detect was
+    unaffected, which is why it went unnoticed.
+
+    Added: if nothing arrives from X-Plane for twenty seconds, the status says so
+    and points at the two usual causes, rather than waiting silently.
+
+    Added: career mode, offered when you establish a company. You start with
+    $2.4 million, no aircraft and no crew, and work through six chapters of
+    objectives: getting started, learning the paperwork, crewing for the freight
+    carriers, metal of your own, contracts and clients, and the long haul. Free
+    play is still there for anyone who wants everything open from the start.
+
+    Added: a "Next step" panel that names the one thing to do now, says why it
+    matters, and takes you to the right screen. It replaces the old getting-started
+    checklist in career mode. An Objectives page shows all six chapters.
+
+    Added: while a company is small, the ferry board always carries three
+    straightforward jobs - no tech stops, no oceanic sectors, no deferred defects,
+    no permits to wait for, and a week to fly them.
+
+    Added: pilot records. Click a name on the roster for sectors, block hours,
+    average and best landings, score, currency by type, occurrences, command
+    progress and every sector they have flown for you.
+
+    Added: aircraft records. Click a registration for the airframe history:
+    hours and cycles, checks due, engines, revenue earned against direct costs and
+    what the lease and maintenance have taken, utilisation by month, most-visited
+    airports and every sector it has flown.
+
+  1.4.4
+  -----
+    Added: aircraft can be re-registered. Press "edit" beside a tail on the Fleet
+    page to change its registration, give it a name and a fleet number. The prefix
+    decides which authority handles it - a G- registration goes on the UK register
+    with the CAA, N- with the FAA, 9H- with Transport Malta - and the cost reflects
+    the size of the aircraft, half again on a leased one because the lessor's
+    consent is needed. The aircraft has to be on the ground and free of work, the
+    registration must not already be carried by another aircraft in the world, and
+    the change is recorded in the company history with the previous tail.
+
+  1.4.3
+  -----
+    Fixed: operators were paired with aircraft by type rating rather than by what
+    they actually fly, so anything sharing a rating could turn up with the wrong
+    airline - a 767 redelivered to Jet2, who have never operated one, because a
+    B757/767 rating covers both aircraft. Every operator now has an explicit fleet,
+    aircraft by aircraft: Jet2 flies 737-800s and A321neos, Icelandair 757s, 767s
+    and MAX 8s, Delta everything except the 777 it retired, Emirates only the A350
+    and the 777. Ferry jobs, ACMI tenders and cargo pairings all draw from those
+    lists, and the type ratings shown in the game are derived from them rather than
+    the other way round.
+
+    Fixed: a group charter could ask for more passengers than the aircraft has
+    seats, which stopped the charter board generating.
+
+  1.4.2
+  -----
+    Added: developer tools, switched on in Settings and off by default. A panel
+    for setting reputation and cash, jumping the clock, adding a job of any kind
+    to the boards, refreshing the market, hiring a rated crew pair, making every
+    pilot current and rested, and repositioning an aircraft to any airport. For
+    trying a feature without flying twenty sectors to reach it. A save that has
+    used them is marked, and the status bar shows a "dev" badge while they are on.
+
+  1.4.1
+  -----
+    Fixed: business aircraft did not appear on the market in an existing save. The
+    guarantee that brokers always hold four of them only applied when the market
+    went through its weekly turnover, so a save carried over from an earlier
+    version showed none until a week of game time had passed - and anyone who
+    updated and looked straight away saw an empty list. The market is now topped
+    up the moment a save is opened, adding what is missing without removing
+    anything you were considering, and a notice says so.
+
+    Added: when the business filter finds nothing, the market says why rather than
+    showing an empty table.
+
+  1.4.0
+  -----
+    Added: the schedule board, under Operations. Every commitment across the fleet
+    on one timeline - charter trips, ACMI rotations, the flight currently in the
+    air, maintenance under way and checks falling due - with each aircraft as a
+    row and a red line marking now. Three, seven, fourteen or twenty-eight days.
+
+    Underneath it, what will not fit. An aircraft in the wrong place for a booked
+    trip, with the distance, the positioning time and whether there are enough
+    hours left before departure. A deadline you cannot make. No rated captain
+    available for a tail that has work on it. Two firm commitments overlapping on
+    one aircraft. Each clash offers the fix: "Position it" opens dispatch with the
+    trip already chosen.
+
+    Also on the board: work you have accepted that is flown on someone else's
+    aircraft - ferry jobs and cargo pairings, with their deadlines - commitments
+    that fall beyond the window, and which crew are off the line and when they
+    come back.
+
+  1.3.1
+  -----
+    Fixed: a booked charter could strand itself. The empty leg to reach the client
+    was worked out when you won the trip and then never changed, so if the
+    aircraft moved in the meantime - for a ferry, a cargo pairing, anything - the
+    trip insisted on departing from where the aircraft used to be. Positioning is
+    now worked out fresh every time from wherever the aircraft actually is, and
+    only the client's own sectors are fixed. Fly the aircraft anywhere you like
+    between sectors; the trip finds its own way back.
+
+    Positioning yourself now counts. Fly to the client's departure field on a
+    normal positioning flight and the trip simply starts with the paid sector.
+
+    The booked trips panel now shows the client's sectors with those flown ticked
+    off, the next sector to fly in bold, and a button that takes you to dispatch
+    with the trip already selected - labelled "Position" when the next leg is
+    empty and "Fly next sector" when it pays.
+
+    Added: a warning before you bid when a trip needs more than one crew's duty
+    day - a four-sector roadshow or eleven block hours cannot be flown by one crew
+    without a night stop.
+
+    Fixed: clearer errors when a trip is already complete, and when the aircraft is
+    somewhere the trip does not expect.
+
+  1.3.0
+  -----
+    Charter, in depth.
+
+    The aircraft market and the fleet list now show range, cruise speed, the
+    runway an aircraft needs, its fuel burn and hourly upkeep, and the age of each
+    airframe - the figures you actually compare on, and essential for judging
+    which charter trips an aircraft could bid for. Lease rows show the deposit,
+    and the ETOPS column reads n/a on a business aircraft rather than a red No.
+
+    Brokers and competing operators now carry their own marks - Air Charter
+    Service, Air Partner, Chapman Freeborn, Avinode, Paramount Business Jets, Jet
+    Linx, XO and FXAir on the enquiry board, and NetJets, Flexjet, VistaJet,
+    Wheels Up, flyExclusive, Solairus, Luxaviation, GlobeAir, Air Hamburg,
+    ExecuJet, Clay Lacy, Gama Aviation, PlaneSense and Airshare when one of them
+    takes a trip you quoted for. Sources and licensing for each are in Credits.
+
+    Ten kinds of trip, each flying differently: one-way, day return, overnight,
+    multi-city roadshow, tour leg, short notice, medical transfer, group charter,
+    long range and event peaks around the Monaco Grand Prix, Davos, the Super Bowl
+    and others, where rates rise and slots are scarce.
+
+    Ten client types with their own priorities. An investment fund weighs
+    punctuality above everything; a private owner notices the landing; a head of
+    state expects both and forgives neither. What they care about decides how they
+    score the trip afterwards.
+
+    Twelve requirements that are actually checked against your fleet before you
+    bid: seats, cabin size, runway length at every field on the itinerary, range
+    without a fuel stop, a cabin attendant, connectivity, baggage volume, customs.
+    The quote dialog lists every business aircraft you own and says which can fly
+    the trip and what the client will hold against each one.
+
+    Trip costs are yours: handling at every stop, catering per passenger, and crew
+    hotels and per diem on an overnight. The fee is not the profit.
+
+    Empty legs: when a trip leaves your aircraft away from base, a passenger may
+    ask about the leg home at a fraction of the rate.
+
+    Brokers are real companies - Air Charter Service, Air Partner, Chapman
+    Freeborn, the Avinode marketplace, Paramount Business Jets, Jet Linx, XO and
+    FXAir - and when you lose a trip you are told which operator took it, from
+    NetJets and Flexjet to VistaJet, Luxaviation and GlobeAir.
+
+  1.2.2
+  -----
+    Fixed: Send to SimBrief failed on a charter sector. The dispatch form showed
+    the aircraft picker instead of the trip picker, so no trip was attached and the
+    server failed with a raw error. The charter branch is now in the form properly,
+    the trip fills in the sector, and choosing nothing gives a clear message rather
+    than an error code.
+
+  1.2.1
+  -----
+    Fixed: business aircraft rarely appeared on the market, so charter work was
+    hard to start. Brokers now always have four business aircraft on their books,
+    the market carries eighteen listings rather than sixteen, and there is a
+    "business aircraft" filter and a button on the Charter page that takes you
+    straight to them.
+
+    Fixed: listings could be older than the aircraft - a 2009 Falcon 8X, a type
+    that first flew in 2016. Every type now has a production period and no listing
+    or ferry job can fall outside it.
+
+    Fixed: business aircraft were listed with airline utilisation. They now show a
+    few hundred hours a year rather than a few thousand, which is what they
+    actually fly, and their cabins are described in seats rather than economy
+    class.
+
+  1.2.0
+  -----
+    Added: private charter, a fourth line of business and the only one where you
+    set the price. Brokers - Air Charter Service, Air Partner, Chapman Freeborn,
+    Victor, PrivateFly and Avinode enquiries - post trips with a client, a routing,
+    a date and a passenger count, and you quote. Quote under the going rate and you
+    win more often; quote over it and the trip is placed elsewhere, and you are
+    told what it went for. The dialog shows your price against the market and your
+    odds as you type.
+
+    A trip is a shape, not a sector: position empty to the client, fly them, and
+    on a same-day return bring them home. Only the client sectors earn, so a trip
+    far from your aircraft is worth less than it looks. Passengers judge comfort
+    and punctuality - touchdown rates across the trip and whether you departed on
+    time - and a satisfied client brings repeat business through the same broker.
+    Fail to operate a booked trip and you pay compensation and lose reputation.
+
+    Added: ten business aircraft with their own ratings and performance figures -
+    PC-12, King Air 350i, Phenom 300E, Citation CJ4 and XLS+, Praetor 600,
+    Challenger 350, G650ER, Global 7500 and Falcon 8X.
+
+    Added: a year in review card on the Analytics page. Sectors, hours, distance,
+    revenue, average score, best landing, reputation and safety record on a single
+    image you can download and post.
+
+    Fixed: since revenue became invoiced, the analytics revenue split was counting
+    everything as "other". Each invoice now carries its line of business, so ferry,
+    cargo, ACMI and charter are separated again in the charts and annual reports.
+
+  1.1.1
+  -----
+    Added: your save is copied to save\backups the first time a new version opens
+    it, keeping the ten most recent. A schema change can no longer cost you a
+    company.
+
+    Added: filters on the aircraft market - by category, type rating, passenger or
+    freighter, and a tick box for only the types your crews are already rated on.
+    Listings show the rating each aircraft needs and whether anyone holds it.
+
+    Added: filters on the logbook, by kind of work and by type, with a running
+    total of sectors, block hours and average score for whatever is shown.
+
+    Changed: freighters are tagged as such on the market and in the fleet, which
+    matters now there are a dozen of them.
+
+    Fixed: cargo pairings offered the CRJ900, which has no freighter version. The
+    CRJ freighter that does exist is the CRJ200 SF, converted by AEI - launch
+    operator IFL Group, and four more with Aeronaves TSM in Mexico. That is now
+    the aircraft on those pairings, with its own performance figures, and Aeronaves
+    TSM has been added as an operator.
+
+  1.1.0
+  -----
+    Added: six freighters, each with its own performance and weight and balance
+    figures, appearing only with the operators that really fly them.
+
+      Airbus A300-600F     FedEx, UPS, DHL's EAT Leipzig, ASL Ireland,
+                           Air Hong Kong, MNG Airlines
+      Embraer E190F/E195F  Bridges Air Cargo, the launch operator, plus Astral
+                           Aviation and Azul Cargo
+      Airbus A321P2F       Qantas Freight and ASL Airlines Ireland
+      Airbus A330-300P2F   EAT Leipzig, Air Hong Kong, Qantas Freight
+      Boeing 727-200F      the handful of carriers still flying it: USA Jet,
+                           IFL Group, Air Class, Solar Cargo, Safe Air and
+                           Serve Air Cargo
+
+    The A300 and the 727 have their own type ratings; the E-Jet freighters share
+    the E-Jet rating and the Airbus conversions their passenger families, as they
+    do in life. None of the six is offered as a factory delivery, all being out of
+    production, and neither the 727 nor the MD-11 carries a lapsed ETOPS approval.
+    The 727 has no autothrottle to fail.
+
+    Added: eight cargo operators to go with them, with their real bases.
+
+    Changed: operator logos are around a third larger and given more room, so they
+    are legible at a glance rather than needing a squint.
+
+  1.0.9
+  -----
+    Fixed: a landing could be recorded at an absurd rate - a touchdown flown at
+    -150 fpm logged as -6,478. Operator works out whether a simulator reports
+    vertical speed in feet per minute or feet per second by comparing what it is
+    told against the rate of climb derived from the altitude trace, and a couple of
+    bad altitude readings were enough to make it choose wrongly and multiply every
+    figure by sixty. The test now needs a clear majority of plausible samples
+    before it will decide, ignores implausible ones entirely, and defaults to feet
+    per minute, which is what both simulators actually use. Every sample is also
+    cross-checked against the altitude trace, so a figure that disagrees wildly
+    with what the aeroplane is doing is discarded.
+
+  1.0.8
+  -----
+    Fixed: patches of the light theme could remain on screen in dark mode. Some
+    embedded browser windows only repaint part of the page when the theme changes,
+    leaving light panels and unreadable text behind; the theme now forces a full
+    redraw. Several surfaces that had no dark equivalent - grey tags, the toast,
+    the modal backdrop, the fleet utilisation chart's labels - have been given one.
+
+  1.0.7
+  -----
+    Fixed: automatic simulator detection properly. Deciding between MSFS and
+    X-Plane before any data had arrived was never going to be reliable - MSFS can
+    accept a connection and then send nothing, which left the status on
+    "Connecting" and stopped X-Plane being tried at all. Operator now listens for
+    both at once and the one that actually sends data owns the connection; the
+    other stands down. Tested with each simulator alone, with both available and
+    with neither.
+
+  1.0.6
+  -----
+    Fixed: the simulator status could sit on "Connecting" for ever. SimConnect
+    blocks rather than reporting an error when MSFS or Prepar3D is not running, so
+    automatic detection never got as far as trying X-Plane. The attempt now has a
+    six-second limit and falls through cleanly, and the status says what it is
+    doing while it looks.
+
+    Fixed: more operator and aircraft pairings. JetBlue no longer appears with an
+    E-Jet - the last E190 left the fleet in 2025 - and the Dash 8 has been removed
+    from Lufthansa, Eurowings, LOT, Austrian and airBaltic, all of which retired
+    their turboprops years ago. Regional subsidiaries are represented properly, so
+    Lufthansa CityLine CRJs and E-Jets and Air Canada Jazz Dash 8s still appear
+    under their parent airline. The ACMI customer fleets and the ferry job fleets
+    are now reconciled from one list, so they cannot drift apart again.
+
+  1.0.5
+  -----
+    Fixed: ferry jobs paired operators with aircraft they do not fly - an E-Jet
+    sold to Southwest, a 737 MAX returning to Cathay Pacific, a Dash 8 going into
+    storage for Jet2. Every operator now has a fleet, and a job only names one
+    that actually flies the type: Southwest for 737s, Allegiant and Spirit for the
+    A320 family, Cargolux for 747s, Western Global for the MD-11F.
+
+  1.0.4
+  -----
+    Added: the McDonnell Douglas MD-11F, with its own type rating, performance and
+    weight and balance figures. It appears only with the two operators still
+    flying it - FedEx Express and Western Global Airlines - and on the used
+    market, in lease returns, storage runs and maintenance ferries. Production
+    ended in 2000, so no factory deliveries are offered. Being a trijet, it never
+    carries a lapsed ETOPS approval, and its three-engine shop programme costs
+    accordingly.
+
+  1.0.3
+  -----
+    Fixed: ferry jobs could send an aircraft somewhere the client had nothing to
+    do with - an Allegiant A320 delivered to Tel Aviv, an Air France jet
+    repositioned to Noumea. Two causes: maintenance and storage destinations were
+    drawn at random rather than from what the operator could sensibly reach, and
+    when a job came out incoherent (origin equal to destination, or a route the
+    type could not fly) the destination was replaced with a random airport.
+    Providers are now chosen near the operator's base and resolved to their
+    nearest site, and an incoherent job is composed again rather than relocated.
+    Factory deliveries always arrive at the customer's own base.
+
+    Fixed: the wording on completion said an aircraft was "delivered to" a client
+    when it had been positioned to a maintenance provider or placed into storage.
+
+  1.0.2
+  -----
+    Fixed: Operator could report "Connected to MSFS/P3D via SimConnect" while you
+    were flying X-Plane. A SimConnect session can open without a simulator behind
+    it, and nothing checked whether data was actually arriving. The connection is
+    now confirmed against real position and altitude before it is claimed, so
+    automatic detection falls through to X-Plane correctly. A link that goes quiet
+    for twenty seconds now says so instead of showing a stale "connected".
+
+    Fixed: a cargo pairing showed "undefined" where the flight type should be.
+
+    Fixed: the mark shown for Sun Country Cargo was another operator's artwork.
+
+  1.0.1
+  -----
+    Fixed: a bad position from the simulator could stretch the moving map across
+    half the world. Telemetry positions are now checked before use - anything
+    outside valid coordinates, or a jump of more than 60 nautical miles between
+    two samples a second apart, is discarded rather than drawn on the map or
+    counted towards distance flown. Tracks already recorded with a bad point in
+    them are cleaned when drawn, so an affected flight looks right on reload.
+    The live panel reports how many samples were ignored.
+
+    Improved: type ratings now show what they cover. A rating spans a whole
+    family, as it does in real life - one A320 rating covers the A319, A320 and
+    A321 including the neos, a B757/767 rating covers both, a B737 rating covers
+    the 700, 800, 900 and MAX 8. The crew roster, the candidate list and the
+    training menu all list the aircraft each rating includes, and the required
+    rating on the ferry and cargo boards names them on hover.
+
+  1.0.0
+  -----
+  First public release.
+
+    Three lines of business: ferry work for lessors, MROs and airlines; cargo
+    contract flying for a hundred real freight carriers; and ACMI wet leasing of
+    your own aircraft. All three can run at once.
+
+    Live flight tracking for MSFS 2020 and 2024, Prepar3D (SimConnect), X-Plane
+    11 and 12 (UDP datarefs) and FSUIPC, with unit detection so vertical speed,
+    attitude and heading are read correctly whatever the simulator reports.
+    Landing analysis down to touchdown point and centreline offset, and
+    stabilised-approach gates at 1,000 and 500 feet.
+
+    Two-way SimBrief integration: send a pre-filled plan in your chosen units and
+    the OFP comes back on its own.
+
+    Runway performance and a full loadsheet and trim document from real runway
+    data for roughly 5,000 airports and 12,700 runways, with the limiting weight
+    and underload shown.
+
+    Permit paperwork with per-state lead times and readable documents; deferred
+    defects filtered to what each type actually has, with enforced restrictions
+    and a briefing on how to fly each one; automatic technical-stop routing.
+
+    Crew with type ratings, duty limits, rest, currency on type, command
+    upgrades and seniority. Every flight needs a commander; two captains may
+    crew together.
+
+    Maintenance including engine shop visits and airworthiness directives; a
+    safety model with occurrences, incidents and accidents driven by fatigue,
+    deferred defects, maintenance status, weather and runway margin, which can be
+    switched off.
+
+    Customers pay on terms, so revenue is invoiced and banked later.
+
+    Analytics with month-end snapshots, a company timeline, printable annual
+    reports, and a moving map with real coastlines drawn offline.
+
+    Runs as a desktop application with light and dark themes, a detachable
+    flight window, save slots, backups, and 228 operator marks.
+
+================================================================================

@@ -1,0 +1,27 @@
+Operator — Ferry, Cargo & ACMI
+Copyright (c) 2026.
+
+This software is provided as-is, without warranty of any kind, express or implied.
+The authors are not liable for any claim, damages or other liability arising from
+its use.
+
+You may use and modify this software for personal, non-commercial purposes.
+
+Third-party content
+-------------------
+Airport, runway and elevation data are derived from OurAirports (ourairports.com),
+released into the public domain.
+
+Coastlines, national boundaries and lakes shown on the moving map are derived from
+Natural Earth (naturalearthdata.com), released into the public domain.
+
+Airline, lessor, manufacturer, MRO and cargo operator names and logos are the
+property of their respective owners. They appear in this program to identify the
+company being simulated. Their inclusion does not imply any sponsorship, endorsement
+or affiliation, and no rights in them are transferred. Provenance for every mark is
+recorded in static/operators/sources.json and shown in the program under Credits.
+
+This program is not affiliated with, endorsed by or connected to Microsoft, Asobo,
+Laminar Research, Lockheed Martin, Navigraph or SimBrief.
+
+Not for real-world navigation or flight planning.

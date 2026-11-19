@@ -1,0 +1,42 @@
+================================================================================
+  OPERATOR - FIRST RUN
+================================================================================
+
+  1. Start Operator from the Start menu or the desktop shortcut.
+
+     A console window appears while the program starts, then hides itself once
+     the Operator window opens. Closing the Operator window quits the program.
+
+  2. Create your company.
+
+       Name           anything you like
+       Code           two or three letters, used as your callsign prefix
+       Base           the airport you operate from
+       Capital        how much you start with
+       Difficulty     Relaxed, Standard or Realistic
+
+  3. Work through the "Getting started" panel on the Dashboard. It knows what you
+     have done and always shows the next step.
+
+     Your first flight, in order:
+
+       Crew & staff   hire a flight dispatcher      (nothing flies without one)
+       Crew & staff   hire a captain and a first officer with the SAME rating
+       Ferry board    accept a job tagged "Good first job" for that rating
+       Ferry board    wait for the paperwork, or press Expedite
+       Dispatch       Ferry job leg -> Send to SimBrief -> generate -> Dispatch
+       Simulator      load the aircraft cold at the gate
+       Status bar     press Connect
+       Dispatch       press Start tracking, then fly
+       Dispatch       shut down at the gate, press File PIREP
+
+  4. Set your SimBrief username in Settings before you start, so flights can be
+     sent to SimBrief and pulled back automatically.
+
+  Everything else - cargo pairings, buying aircraft, ACMI contracts - opens up
+  from there. Each screen has a help strip at the top, and Help has a glossary of
+  the terminology.
+
+  Full documentation is in README.txt.
+
+================================================================================
