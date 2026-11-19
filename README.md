@@ -1,5 +1,5 @@
 # Operator — Ferry, Cargo & ACMI
-### Version 1.0
+### Version 1.8.0
 
 A local application for flight simmers who want to run a third-party flight operation: ferrying other
 people's aircraft, flying freight as contract crew for real cargo carriers, and wet-leasing your own
@@ -36,6 +36,21 @@ the placeholder: Settings → Apps → Advanced app settings → App execution a
 Two other things worth knowing: keep the folder somewhere simple such as `C:\Operator` rather than inside
 OneDrive or Program Files, and if dependency installation fails it is almost always a firewall or proxy
 blocking pip.
+
+## Contributing
+
+Clone the repository and follow the run instructions above. A simulator and a SimBrief
+account are optional for testing the app. On Windows, use the following PowerShell
+commands from the repository folder to start the local server for browser testing.
+
+```powershell
+.\run.bat --setup-only
+.\.venv\Scripts\python.exe server.py --no-browser
+```
+
+Open http://127.0.0.1:8123. The console reports the port if the default is busy.
+Create a branch for each change and open a pull request into main with a short description
+and the steps you used to test it.
 
 ## Simulator connection
 
@@ -212,5 +227,4 @@ presence does not imply sponsorship or endorsement.
 Airport and runway data (`airports.json`, `runways.json`, `elevations.json`) is derived from
 [OurAirports](https://ourairports.com/data/), released into the public domain. Performance figures are
 simplified models tuned to published field lengths — good enough to make runway choice matter, not a
-substitute for a real AFM. Airline, lessor, MRO and manufacturer names are used nominatively; no third-party
-logos or trademarks are included.
+substitute for a real AFM. Airline, lessor, MRO and manufacturer names and logos identify the simulated operators. See the logo provenance files above.
