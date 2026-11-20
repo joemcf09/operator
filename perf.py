@@ -81,6 +81,14 @@ PERF = {
     "B789": dict(tofl=9200, ldfl=5500, oew_kg=128850, mlw_kg=192775, mzfw_kg=181435, fuel_kg=101450, vref=145, cat="Widebody"),
     "B744": dict(tofl=10200, ldfl=6200, oew_kg=178750, mlw_kg=285765, mzfw_kg=256280, fuel_kg=173000, vref=152, cat="Widebody"),
     "B748": dict(tofl=10700, ldfl=6300, oew_kg=197131, mlw_kg=346091, mzfw_kg=329838, fuel_kg=194000, vref=152, cat="Widebody"),
+    # Additional passenger-to-freighter conversions (gameplay estimates, not AFM data).
+    # The 767-200SF reference values follow the previously discussed Operator addition.
+    "B75S": dict(tofl=8300, ldfl=5100, oew_kg=59200, mlw_kg=95250, mzfw_kg=90000, fuel_kg=33540, vref=138, cat="Narrowbody"),  # 757-200SF
+    "B762F": dict(tofl=7600, ldfl=5200, oew_kg=78215, mlw_kg=128365, mzfw_kg=117025, fuel_kg=62150, vref=140, cat="Widebody"),  # 767-200SF
+    "B762": dict(tofl=7600, ldfl=5200, oew_kg=78215, mlw_kg=128365, mzfw_kg=117025, fuel_kg=62150, vref=140, cat="Widebody"),   # 767-200BDSF (alternate code)
+    "B76B": dict(tofl=8500, ldfl=5600, oew_kg=90700, mlw_kg=145150, mzfw_kg=133810, fuel_kg=73000, vref=145, cat="Widebody"),  # 767-300BCF
+    "B76D": dict(tofl=8500, ldfl=5600, oew_kg=90200, mlw_kg=145150, mzfw_kg=133810, fuel_kg=73000, vref=145, cat="Widebody"),  # 767-300BDSF
+    "B74B": dict(tofl=10300, ldfl=6200, oew_kg=181000, mlw_kg=285765, mzfw_kg=256280, fuel_kg=173000, vref=152, cat="Widebody"),  # 747-400BCF
 }
 
 # Balance model: CG expressed in % MAC. Envelope is 15–35% MAC for jets, a little wider
@@ -89,8 +97,8 @@ BALANCE = dict(oew=24.0, fwd_hold=-10.0, aft_hold=70.0, cabin_fwd=0.0, cabin_aft
 BALANCE_TP = dict(env=(12.0, 38.0))
 # Empty-aircraft CG by type: freighters and aircraft with heavy tails sit further aft
 OEW_ARM = {"MD11": 35.5, "DC3": 22.0, "C208": 20.0, "DHC6": 20.0, "SF34": 24.0, "AT43": 26.0, "H25B": 27.0, "B75F": 27.0, "B38F": 30.0, "AT7F": 28.0, "PC12": 24.0, "BE20": 24.0, "E55P": 26.0, "C25C": 26.0, "C56X": 27.0,
-           "E545": 29.0, "CL35": 29.0, "GLF6": 33.0, "GL7T": 34.0, "FA8X": 32.0, "CR2F": 33.0, "A306": 33.0, "B722": 27.5, "E19F": 30.0, "E95F": 30.5, "A21F": 30.0, "A33F": 35.0, "B76F": 37.0, "B77F": 36.5, "B744": 36.0, "B748": 36.0, "CRJ9": 33.0, "E190": 30.0, "E195": 30.0, "AT76": 28.0, "DH8D": 28.0, "B752": 27.0}
-
+           "E545": 29.0, "CL35": 29.0, "GLF6": 33.0, "GL7T": 34.0, "FA8X": 32.0, "CR2F": 33.0, "A306": 33.0, "B722": 27.5, "E19F": 30.0, "E95F": 30.5, "A21F": 30.0, "A33F": 35.0, "B76F": 37.0, "B77F": 36.5, "B744": 36.0, 
+           "B748": 36.0, "CRJ9": 33.0, "E190": 30.0, "E195": 30.0, "AT76": 28.0, "DH8D": 28.0, "B752": 27.0, "B75S": 27.5, "B762F": 36.0, "B762": 36.0, "B76B": 37.0, "B76D": 37.0, "B74B": 36.0}
 
 def runways(icao):
     return RUNWAYS.get((icao or "").upper(), [])

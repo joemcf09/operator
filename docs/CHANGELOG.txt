@@ -2,6 +2,70 @@
   OPERATOR - CHANGELOG
 ================================================================================
 
+  1.9.0
+  -----
+    Aircraft Marketplace Generation: Improved aircraft availability weighting based on production history, operator prevalence, age, and secondary-market supply. 
+    Reduced repetitive listings of identical aircraft types.
+    
+    Dynamic Aircraft Inventory: Replaced fixed marketplace quantities with randomized inventory targets, averaging approximately 18 aircraft, with a range of 10–32 and 
+    natural listing turnover.
+    
+    Aircraft Age, Hours & Cycles: Improved used-aircraft generation to produce more realistic manufacturing dates, accumulated flight hours, cycles, maintenance 
+    histories, and valuations.
+    
+    Passenger-to-Freighter Conversion Histories: Converted freighters now retain their original passenger-aircraft manufacturing dates and accumulated utilization. 
+    Conversion timing and passenger/freighter operating histories influence hours and cycles.
+    
+    Additional Freighter Variants: Added 757-200SF, 767-200SF/BDSF, 767-300BCF/BDSF, and 747-400BCF aircraft definitions, including cargo capacities, estimated 
+    performance, and operating economics.
+    
+    Aircraft Performance and Payload Data: Expanded data.py and perf.py with additional freighter-specific payload and performance information to support aircraft 
+    eligibility, dispatch, and loadsheet calculations.
+    
+    Aircraft Registration Generation: Corrected ferry and cargo aircraft registration generation to better reflect the geographical origin of the aircraft.
+    
+    ACMI Capability-Based Tendering: Changed ACMI requirements from exact aircraft variants to operational capabilities, including aircraft class, type-rating family, 
+    cargo/passenger configuration, payload, seating, and sector range.
+    
+    ACMI Aircraft Eligibility: Added backend validation and frontend eligibility checks showing which fleet aircraft qualify for a tender and why other aircraft are 
+    unsuitable.
+    
+    ACMI Contract Aircraft Assignment: Accepted contracts now record the actual aircraft variant supplied rather than retaining the tender's reference type, improving 
+    subsequent flight-performance calculations.
+    
+    ACMI Utilization Profiles: Introduced maintenance, supplemental, dedicated, and peak-demand contract profiles with different monthly guaranteed block-hour ranges 
+    based on aircraft category and customer requirements.
+    
+    ACMI Minimum Guarantee Accounting: Corrected monthly guarantee calculations, including partial-month proration. Customer underutilization no longer automatically 
+    penalizes the operator.
+    
+    ACMI Contract Performance: Refined sector-completion calculations, performance notices, and minimum-guarantee service credits to distinguish missed scheduled 
+    flying from insufficient customer demand.
+    
+    ACMI Customer Diversity: Improved tender generation to distribute opportunities among eligible airlines rather than repeatedly generating contracts from the same   
+    customer.
+    
+    Realistic ACMI Rotations: Replaced mandatory daily flying with profile-based operating schedules, varying weekly flying days and return trips. Rotations account 
+    for aircraft performance, route distances, and operating-time limits.
+    
+    ACMI Dispatch Interface: Updated the tender, contract, and dispatch screens to show operating schedules and handle non-flying days without incorrectly registering 
+    missed sectors.
+    
+    Dynamic Contract Marketplaces: Replaced fixed ferry, cargo, and ACMI board targets with weekly randomized demand: 8–22 ferry opportunities, 5–16 cargo pairings, 
+    and 3–12 ACMI tenders.
+    
+    Marketplace Save Compatibility: Added persistent weekly board targets and backward-compatible handling of new contract fields so existing save games can continue 
+    without a reset.
+    
+    Real-Time UTC Clock: Updated the interface clock to display continuously updating UTC time with seconds when Real-Time mode is enabled, preserving existing 
+    behavior in other clock modes.
+    
+    Additional compatibility work: Prepared aircraft-type substitution mappings for SimBrief to accommodate conversion variants not directly represented by standard 
+    SimBrief aircraft identifiers.
+    
+    Development status: The principal changes have undergone Python/JavaScript syntax checks and targeted functional testing. Full application-wide regression and 
+    integration testing remains outstanding. Some reconstructed aircraft performance values are estimates requiring further validation
+
   1.8.0
   -----
     Added: type ratings on the air operator certificate. A certificate names the

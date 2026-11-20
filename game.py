@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 
 import perf
 
-VERSION = "1.8.0"
+VERSION = "1.9.0"
 import safety
 from data import (AIRCRAFT, AIRPORTS, elevation, LESSORS, MROS, STORAGE, DELIVERY_CENTERS, ACMI_CUSTOMERS, OPERATORS, OPERATOR_BASES,
                   REG_PREFIXES, FIRST_NAMES, LAST_NAMES, PERMIT_COUNTRIES, COMPETITORS, CARGO_COMPETITORS, CARGO_OPERATORS, CARGO_CARRIERS_WITH_AIRCRAFT, OPERATOR_FLEETS, OPERATOR_TYPES, operators_for, types_for, BROKERS, CHARTER_CLIENTS, CHARTER_HUBS, CHARTER_EXTRAS, CHARTER_TRIPS, GROUP_CLIENTS, GROUP_HOURLY, aerodrome_code, REGIONS, region_of, ADJACENT_REGIONS, AREA_APPLICATION, TYPE_APPLICATION, SAME_MFR_DISCOUNT, REGION_OF_COUNTRY, CHARTER_EVENTS, CHARTER_COMPETITORS, SHORT_FIELDS, BIZ_SERVICE, BIZ_CLIENTS, BIZ_BROKERS, build_year_range, SNAGS, snags_for, ENGINES, ENGINE_OEM, STAFF,
@@ -142,6 +142,7 @@ class Game:
         s = self.state
         s.setdefault("staff", dict(dispatcher=0, mx_controller=0, cabin_crew=0))
         s.setdefault("inbox", []); s.setdefault("achievements", {}); s.setdefault("cargo_board", [])
+        s.setdefault("board_targets", {})  # weekly marketplace size, preserved across saves
         s.setdefault("snapshots", []); s.setdefault("timeline", []); s.setdefault("years", []); s.setdefault("receivables", [])
         s.setdefault("charter_board", []); s.setdefault("charter_jobs", [])
         s.setdefault("career", dict(enabled=False, done={}, seen_chapter=0))
@@ -379,13 +380,26 @@ class Game:
     def fuel_price(self, icao):
         return self.s["company"]["fuel_price_usg"] * fuel_factor(icao)
 
-    def _reg(self):
+    def _reg(self, location=None):
+        country = (AIRPORTS.get(location) or {}).get("country")
+
         while True:
-            pre = self.rng.choice(REG_PREFIXES)
-            if pre == "N":
-                r = "N" + str(self.rng.randint(100, 999)) + "".join(self.rng.choice(string.ascii_uppercase) for _ in range(2))
+            # Favor US registrations for aircraft located in the US.
+            if country == "US" and self.rng.random() < 0.90:
+                pre = "N"
             else:
-                r = pre + "".join(self.rng.choice(string.ascii_uppercase) for _ in range(3))
+                pre = self.rng.choice(REG_PREFIXES)
+
+            if pre == "N":
+                letters = "ABCDEFGHJKLMNPQRSTUVWXYZ"
+                r = "N" + str(self.rng.randint(100, 999)) + "".join(
+                    self.rng.choice(letters) for _ in range(2)
+                )
+            else:
+                r = pre + "".join(
+                    self.rng.choice(string.ascii_uppercase) for _ in range(3)
+                )
+
             if not any(a["reg"] == r for a in self.s["fleet"] + self.s["market"]):
                 return r
 
@@ -425,6 +439,7 @@ class Game:
             inbox=[], achievements={}, career=dict(enabled=bool(career), done={}, seen_chapter=0),
             clock=iso(now), cash=0.0, ledger=[], loans=[], ids={}, fleet=[], market=[], pilots=[], hire_pool=[], ferry_board=[], cargo_board=[],
             acmi_tenders=[], contracts=[], flights=[], active_flight=None, dispatched=[], notices=[], month_reports=[], events=[],
+            board_targets={},
             staff=dict(dispatcher=0, mx_controller=0, cabin_crew=0),
             safety=dict(enabled=True, occurrences=[], since_incident=0, hull_losses=0, fatalities=0, injuries=0,
                         premium_factor=1.0, grounded_until=None, investigation=None),
@@ -485,41 +500,176 @@ class Game:
         a.setdefault("pbh", False)
         a.setdefault("pbh_rate", money(cost * n / interval * 1.15))
 
-    def _listing(self, code=None):
-        code = code or self.rng.choice(list(AIRCRAFT))
-        ac = AIRCRAFT[code]
+    def _listing(self, code=None, pool=None):
+        """Create a used-aircraft listing using actual build years and maintenance state.
+
+        Pass code for a specific type, or pool for a weighted market selection.
+        All market-generation rules intentionally live in this one function.
+        """
         yr = self.now().year
+
+        # Named passenger-to-freighter programs: years in passenger service, then
+        # the FIRST possible conversion year. Donor airframes still use build_year_range.
+        # Optional data.py override: conversion_program="767-300BCF", etc.
+        #Airbus P2F programs not included here yet
+        conversion_programs = {
+            "757200SF": (12, 23, 2001),
+            "767200SF": (15, 23, 1998),
+            "767300BCF": (13, 25, 2008),
+            "767300BDSF": (13, 25, 2010),
+            "747400BCF": (10, 22, 2005),
+        }
+
+        # Prefer common types, but keep older/rarer airframes in circulation.
+        # Duplicate listings are allowed, just less likely on an 18-aircraft board.
+        if code is None:
+            candidates = list(pool) if pool is not None else list(AIRCRAFT)
+            counts = {}
+            for item in self.s["market"]:
+                counts[item["type"]] = counts.get(item["type"], 0) + 1
+
+            eligible, weights = [], []
+            for t in candidates:
+                a = AIRCRAFT[t]
+                first, last = build_year_range(t, yr)
+                if first > yr or last < first:
+                    continue
+                label = re.sub(r"[^A-Z0-9]", "", a.get("conversion_program", a["name"]).upper())
+                program = ("757200SF" if "757200SF" in label else
+                           "767200SF" if "767200SF" in label else
+                           "767300BDSF" if "767300" in label and "BDSF" in label else
+                           "767300BCF" if "767300" in label and "BCF" in label else
+                           "747400BCF" if "747400" in label and "BCF" in label else None)
+                spec = conversion_programs.get(program)
+                if spec and (yr < spec[2] or first > yr - spec[0]):
+                    continue  # conversion not yet possible; don't sell a future freighter
+                production = max(0.55, min(1.7, math.sqrt((min(last, yr) - first + 1) / 12)))
+                presence = 0.8 + min(1.5, 0.22 * math.sqrt(len(operators_for(t, OPERATORS))))
+                years_retired = max(0, yr - last)
+                decay = 32 if a["cargo"] else 24 if a.get("charter") else 20
+                legacy = max(0.10, math.exp(-years_retired / decay))
+                weight = (max(0.0, a.get("market_weight", 1.0)) * production * presence * legacy
+                          * 0.65 ** counts.get(t, 0))
+                if weight > 0:
+                    eligible.append(t)
+                    weights.append(weight)
+            if not eligible:
+                raise GameError("No eligible aircraft types in this market pool.")
+            code = self.rng.choices(eligible, weights=weights, k=1)[0]
+
+        ac = AIRCRAFT[code]
+        label = re.sub(r"[^A-Z0-9]", "", ac.get("conversion_program", ac["name"]).upper())
+        program = ("757200SF" if "757200SF" in label else
+                   "767200SF" if "767200SF" in label else
+                   "767300BDSF" if "767300" in label and "BDSF" in label else
+                   "767300BCF" if "767300" in label and "BCF" in label else
+                   "747400BCF" if "747400" in label and "BCF" in label else None)
+        spec = conversion_programs.get(program)
         lo, hi = build_year_range(code, yr)
-        if code in ("B752", "B763", "B744", "A332", "B772"):
-            want = (yr - 26, yr - 10)
-        elif ac["value"][1] > 50:
-            want = (yr - 9, yr - 1)
-        else:
-            want = (yr - 20, yr - 4)
-        # a listing can only be as old as the type: no 2009 Falcon 8X
-        year = self.rng.randint(max(lo, min(want[0], hi)), max(lo, min(want[1], hi)))
+        if spec:
+            if yr < spec[2]:
+                raise GameError(f"{code} conversion program was not yet in service in {yr}.")
+            hi = min(hi, yr - spec[0])  # donor must have served as passengers first
+        if lo > yr or hi < lo:
+            raise GameError(f"{code} has no valid donor manufacturing years as of {yr}.")
+        # Freighter conversions retain the ORIGINAL airframe manufacturing year.
+        year = self.rng.randint(lo, min(hi, yr))
         age = yr - year
-        cond = max(0.05, min(1.0, 1 - age / 26 + self.rng.uniform(-0.1, 0.1)))
-        value = (ac["value"][0] + (ac["value"][1] - ac["value"][0]) * cond) * 1e6 * self._market_cycle()
-        # business aircraft fly a few hundred hours a year, airliners a few thousand
-        annual = self.rng.uniform(260, 520) if ac.get("charter") else self.rng.uniform(2200, 3600)
-        hours = int(age * annual)
-        leg_len = self.rng.uniform(1.6, 2.6) if ac.get("charter") else (
-            self.rng.uniform(1.4, 2.6) if ac["cat"] != "Turboprop" else 0.9)
-        cycles = int(hours / leg_len)
+
+        # Passenger-to-freighter conversions carry their ORIGINAL airframe time.
+        # Do not treat factory-built B75F (757-200PF) or B76F (767-300F) as conversions.
+        conversion_ages = {
+            "B38F": (10, 18),
+            "A21F": (12, 20),
+            "CR2F": (12, 21),
+            "E19F": (10, 18),
+            "E95F": (10, 18),
+        }
+        conversion_tags = ("BCF", "BDSF", "P2F", "PCF", "-200SF", "-300SF")
+        converted = ac["cargo"] and (spec is not None or code in conversion_ages or
+                                      any(tag in ac["name"].upper() for tag in conversion_tags))
+        if converted and age:
+            # Years as passengers, then as freight; conversion never resets counters.
+            if spec:
+                pax_min = max(spec[0], spec[2] - year)
+                pax_max = min(spec[1], age)
+                pax_years = self.rng.randint(pax_min, pax_max)
+            else:
+                pax_years = min(age, self.rng.randint(*conversion_ages.get(code, (12, 21))))
+            cargo_years = age - pax_years
+            if program == "747400BCF":
+                # 747-400s spent most of their lives on long-haul sectors.
+                pax_annual, pax_leg = self.rng.uniform(3600, 5100), self.rng.uniform(5.5, 9.5)
+                cargo_annual, cargo_leg = self.rng.uniform(2000, 3400), self.rng.uniform(4.5, 8.0)
+            elif program in ("767300BCF", "767300BDSF"):
+                # -300ER donor aircraft commonly flew longer passenger missions.
+                pax_annual, pax_leg = self.rng.uniform(3000, 4000), self.rng.uniform(4.1, 6.0)
+                cargo_annual, cargo_leg = self.rng.uniform(1100, 2400), self.rng.uniform(2.3, 3.2)
+            elif ac["cat"] == "Widebody":
+                pax_annual, pax_leg = self.rng.uniform(2800, 3700), self.rng.uniform(2.3, 3.6)
+                cargo_annual, cargo_leg = self.rng.uniform(1100, 2000), self.rng.uniform(1.7, 2.6)
+            elif program == "757200SF":
+                # 757 passenger missions were longer than the average narrowbody leg.
+                pax_annual, pax_leg = self.rng.uniform(2500, 3700), self.rng.uniform(2.8, 4.4)
+                cargo_annual, cargo_leg = self.rng.uniform(1400, 2800), self.rng.uniform(2.1, 3.0)
+            else:
+                pax_annual, pax_leg = self.rng.uniform(2500, 3700), self.rng.uniform(1.2, 2.4)
+                cargo_annual, cargo_leg = self.rng.uniform(1400, 2500), self.rng.uniform(1.4, 2.6)
+            pax_hours, cargo_hours = int(pax_years * pax_annual), int(cargo_years * cargo_annual)
+            hours = pax_hours + cargo_hours
+            cycles = int(pax_hours / pax_leg) + int(cargo_hours / cargo_leg)
+        else:
+            # Factory freighters, passenger aircraft and bizjets retain the base model.
+            annual = (self.rng.uniform(260, 520) if ac.get("charter") else
+                      self.rng.uniform(1400, 2800) if ac["cargo"] else
+                      self.rng.uniform(2200, 3600))
+            hours = int(age * annual)
+            leg_len = (self.rng.uniform(1.6, 2.6) if ac.get("charter") else
+                       self.rng.uniform(2.1, 3.6) if ac["cargo"] else
+                       0.9 if ac["cat"] == "Turboprop" else self.rng.uniform(1.4, 2.6))
+            cycles = int(hours / leg_len)
+
         lessor = self.rng.choice(LESSORS)
-        loc = self.rng.choice([lessor["hq"], self.rng.choice(STORAGE)["icao"], self.rng.choice(list(OPERATOR_BASES.values()))])
-        l = dict(id=self.nid("listing"), type=code, name=ac["name"], reg=self._reg(), year=year, hours=hours, cycles=cycles, lessor=lessor["name"],
-                 price=money(value), lease=money(ac["lease"] * (0.7 + 0.5 * cond) * self.rng.uniform(0.92, 1.08) * self._market_cycle()),
-                 deposit_months=3, min_term=self.rng.choice([12, 24, 36]), location=loc, cat=ac["cat"], family=ac["family"],
-                 fh_since_a=self.rng.randint(0, 500), c_check_months=self.rng.randint(1, 20), config="Freighter" if ac["cargo"] else (f"{ac['seats']} seats" if ac.get("charter") else f"{ac['seats']}Y"),
-                 etops=(ac["cat"] in ("Widebody", "Narrowbody")) and self.rng.random() > (0.5 if loc in [x["icao"] for x in STORAGE] else 0.1),
+        loc = self.rng.choice([lessor["hq"], self.rng.choice(STORAGE)["icao"],
+                               self.rng.choice(list(OPERATOR_BASES.values()))])
+        l = dict(id=self.nid("listing"), type=code, name=ac["name"], reg=self._reg(loc),
+                 year=year, hours=hours, cycles=cycles, lessor=lessor["name"],
+                 deposit_months=3, min_term=self.rng.choice([12, 24, 36]),
+                 location=loc, cat=ac["cat"], family=ac["family"],
+                 fh_since_a=self.rng.randint(0, 500), c_check_months=self.rng.randint(1, 20),
+                 config="Freighter" if ac["cargo"] else (f"{ac['seats']} seats" if ac.get("charter") else f"{ac['seats']}Y"),
+                 etops=(ac["cat"] in ("Widebody", "Narrowbody")) and
+                       self.rng.random() > (0.5 if loc in [x["icao"] for x in STORAGE] else 0.1),
                  listed=self.s["clock"])
+        if converted and age:
+            l["conversion_year"] = year + pax_years  # optional listing metadata
         self._init_engines(l)
+
+        # Engine/check life affects value separately from airframe age. Avoid
+        # assigning every 30+ year-old freighter the absolute minimum price.
+        life_years = (52 if ac["cargo"] and ac["cat"] == "Widebody" else
+                      44 if ac["cargo"] else 38 if ac["cat"] == "Widebody" else 35)
+        life_hours = (155000 if ac["cargo"] and ac["cat"] == "Widebody" else
+                      115000 if ac["cargo"] else 120000 if ac["cat"] == "Widebody" else
+                      28000 if ac.get("charter") else 95000)
+        airframe = (0.55 * max(0.08, 1 - age / life_years) +
+                    0.45 * max(0.08, 1 - hours / life_hours))
+        _n, _cost, interval = ENGINES[ac["family"]]
+        engine_life = sum(min(1.0, e["hours_to_sv"] / interval) for e in l["engines"]) / len(l["engines"])
+        c_life = max(0.0, 1 - l["c_check_months"] / C_CHECK_MONTHS)
+        a_life = max(0.0, 1 - l["fh_since_a"] / A_CHECK_FH)
+        maintenance = 0.50 * engine_life + 0.35 * c_life + 0.15 * a_life
+        cond = max(0.05, min(0.95, 0.42 * airframe + 0.58 * maintenance + self.rng.uniform(-0.07, 0.07)))
+        l["condition"] = round(cond, 2)  # optional for future UI; existing saves unaffected
+        l["price"] = money((ac["value"][0] + (ac["value"][1] - ac["value"][0]) * cond) * 1e6 * self._market_cycle())
+        l["lease"] = money(ac["lease"] * (0.70 + 0.50 * cond) *
+                           self.rng.uniform(0.92, 1.08) * self._market_cycle())
         return l
 
-    MARKET_SIZE = 18
-    MARKET_BIZJETS = 4          # brokers always have business aircraft on their books
+    MARKET_SIZE = 18       # Average number of listings
+    MARKET_MIN = 10        # Minimum market inventory
+    MARKET_MAX = 32        # Maximum market inventory
+    MARKET_BIZJETS = 3     # Minimum business aircraft
 
     def top_up_market(self):
         """Make sure the standing stock is there without waiting for the weekly cycle.
@@ -534,11 +684,11 @@ class Game:
             have_biz = sum(1 for x in m if AIRCRAFT.get(x["type"], {}).get("charter"))
             if have_biz >= self.MARKET_BIZJETS:
                 break
-            m.append(self._listing(self.rng.choice(biz)))
+            m.append(self._listing(pool=biz))
             added += 1
-        while len(m) < self.MARKET_SIZE and guard < 80:
+        while len(m) < self.MARKET_MIN and guard < 80:
             guard += 1
-            m.append(self._listing(self.rng.choice(airline)))
+            m.append(self._listing(pool=airline))
             added += 1
         return added
 
@@ -550,12 +700,23 @@ class Game:
             self.s["market"] = m = [x for x in m if self.rng.random() > 0.15]
         biz = [t for t, a in AIRCRAFT.items() if a.get("charter")]
         airline = [t for t, a in AIRCRAFT.items() if not a.get("charter")]
+        target = max(self.MARKET_MIN, min(
+            self.MARKET_MAX,
+            round(self.rng.gauss(self.MARKET_SIZE, 5.0))
+        ))
+
         guard = 0
-        while len(m) < self.MARKET_SIZE and guard < 60:
+        while guard < 60:
+            have_biz = sum(
+                1 for x in m
+                if AIRCRAFT.get(x["type"], {}).get("charter")
+            )
+            if len(m) >= target and have_biz >= self.MARKET_BIZJETS:
+                break
+
             guard += 1
-            have_biz = sum(1 for x in m if AIRCRAFT.get(x["type"], {}).get("charter"))
             pool = biz if have_biz < self.MARKET_BIZJETS else airline
-            m.append(self._listing(self.rng.choice(pool)))
+            m.append(self._listing(pool=pool))
 
     # ---------------------------------------------------------------- delivery
     # Two pilots away from home for the trip. Ferry crews are contractors and charge
@@ -2473,7 +2634,7 @@ class Game:
         days = max(3, int(dist / 1200) + 3 + (2 if permit != "Standard CofA" else 0) + (3 if self.diff()["permit"] > 1 and permits_needed else 0))
         beginner = (permit == "Standard CofA" and not stops and not oceanic and not snags and not permits_needed and dist < 1500
                     and kind not in ("Lease return", "Redelivery", "Sale delivery"))
-        return dict(id=self.nid("job"), kind=kind, client=client, type=code, name=ac["name"], reg=self._reg(), origin=o, destination=d, distance=int(dist),
+        return dict(id=self.nid("job"), kind=kind, client=client, type=code, name=ac["name"], reg=self._reg(o), origin=o, destination=d, distance=int(dist),
                     fee=money(fee), tech_stops=stops, desc=desc, family=ac["family"], expires=iso(self.now() + timedelta(days=self.rng.randint(3, 10))),
                     window_days=days, status="Open", current=o, legs=[], crew=[], accepted=None, deadline=None,
                     year=self._plausible_year(code, kind),
@@ -2501,13 +2662,43 @@ class Game:
                 board.insert(0, j)
                 have += 1
 
+    def _board_target(self, board, full=False):
+        """Stable weekly, randomized targets. Market contracts expire normally;
+        we never cancel posted offers just because the new target is smaller.
+        A manual full refresh can reroll only the requested board.
+        """
+        now = self.now()
+        monday = (now.date() - timedelta(days=now.weekday())).isoformat()
+        saved = self.s.setdefault("board_targets", {})
+        if saved.get("week") != monday:
+            saved.clear()
+            saved["week"] = monday
+        if full or board not in saved:
+            if board == "ferry":
+                # Keep reputation influence: Standard new company (~45 rep)
+                # averages about 14 open jobs, with natural variation.
+                base = 12 + int(self.s["company"]["reputation"] / 20)
+                value = max(8, min(22, round(self.rng.gauss(base, 3.0))))
+            elif board == "cargo":
+                value = max(5, min(16, round(self.rng.gauss(10, 2.8))))
+            elif board == "acmi":
+                seasonal = int(7 * season(now.month, False))
+                value = max(3, min(12, round(self.rng.gauss(seasonal, 2.0))))
+            else:
+                raise ValueError(f"Unknown board: {board}")
+            saved[board] = value
+        return saved[board]
+
     def refresh_ferry_board(self, full=False):
         b = self.s["ferry_board"]
         if full:
             b.clear()
         else:
             self.s["ferry_board"] = b = [j for j in b if j["status"] != "Open" or parse(j["expires"]) > self.now()]
-        target = 10 + int(self.s["company"]["reputation"] / 20)
+        target = self._board_target("ferry", full=full)
+        # Reserve beginner-friendly opportunities within the normal market target.
+        # On older saves with a full board, this safeguard can briefly exceed it.
+        self._ensure_beginner_jobs()
         guard, dry = 0, 0
         while sum(1 for j in b if j["status"] == "Open") < target and guard < 200 and dry < 25:
             guard += 1
@@ -2517,7 +2708,6 @@ class Game:
                 b.append(j)
             else:
                 dry += 1
-        self._ensure_beginner_jobs()
 
     def _build_docs(self, j):
         docs = [dict(name="Insurance certificate (hull & liability, ferry endorsement)", days=1, fee=0)]
@@ -2845,7 +3035,7 @@ class Game:
             premium += v
             extras.append(dict(what="Special load handling", amount=money(v)))
         pay = base_pay + premium
-        return dict(id=self.nid("cargo"), carrier=car["name"], iata=car["iata"], type=code, name=ac["name"], reg=self._reg(), base=base,
+        return dict(id=self.nid("cargo"), carrier=car["name"], iata=car["iata"], type=code, name=ac["name"], reg=self._reg(base), base=base,
                     legs=legs, block_h=round(block_h, 1), days=days, pay=money(pay), bh_rate=money(bh_rate), day_rate=day_rate,
                     base_pay=money(base_pay), extras=extras, night_sectors=night_sectors, ocean_sectors=ocean_sectors,
                     family=ac["family"], long_haul=long_haul, status="Open", crew=[], accepted=None, deadline=None,
@@ -2862,7 +3052,7 @@ class Game:
             b.clear()
         else:
             self.s["cargo_board"] = b = [j for j in b if j["status"] != "Open" or parse(j["expires"]) > now]
-        target, spins, dry = 10, 0, 0
+        target, spins, dry = self._board_target("cargo", full=full), 0, 0
         while sum(1 for j in b if j["status"] == "Open") < target and spins < 300 and dry < 25:
             spins += 1
             # keep some work within reach of home, so a company based in Britain is not
@@ -2929,7 +3119,51 @@ class Game:
         return 0
 
     # ================================================================ ACMI
-    def _tender(self, renewal_of=None):
+    def acmi_fit(self, tender, aircraft):
+        """Check the aircraft offered against the customer's capacity requirement.
+
+        Also intended for the tender popup's aircraft selector. Older tenders without
+        a requirements dict remain usable. Cargo payload limits activate once
+        payload_kg (or max_payload_kg) is populated for freighters in data.py.
+        """
+        offered = AIRCRAFT[aircraft["type"]]
+        requested = AIRCRAFT[tender["type"]]  # legacy reference type only
+        need = tender.get("requirements") or {}
+        problems = []
+
+        if offered["family"] != need.get("family", tender["family"]):
+            problems.append("Aircraft is outside the requested type-rating family.")
+        if offered["cat"] != need.get("category", requested["cat"]):
+            problems.append("Aircraft is not in the requested size class.")
+        if bool(offered["cargo"]) != bool(need.get("cargo", tender["cargo"])):
+            problems.append("Passenger/freighter configuration does not match.")
+
+        min_seats = int(need.get("min_seats") or 0)
+        if min_seats and offered.get("seats", 0) < min_seats:
+            problems.append(f"Needs at least {min_seats} passenger seats.")
+
+        min_payload = int(need.get("min_payload_kg") or 0)
+        if min_payload:
+            payload = offered.get("payload_kg") or offered.get("max_payload_kg")
+            if payload is None:
+                problems.append("Cargo payload capacity is not defined in data.py.")
+            elif payload < min_payload:
+                problems.append(f"Needs at least {min_payload:,} kg of cargo payload.")
+
+        max_leg = need.get("max_sector_nm")
+        if max_leg is None:
+            # Existing saved tenders did not store the longest-sector requirement.
+            hub = tender.get("hub")
+            max_leg = max((gc_nm(hub, dest) for dest in tender.get("network", [])
+                           if hub in AIRPORTS and dest in AIRPORTS and dest != hub), default=0)
+        if max_leg and offered["range_nm"] * 0.85 < max_leg:
+            problems.append(f"Needs {int(max_leg):,} NM sector capability with reserves.")
+
+        if aircraft.get("status") != "Available":
+            problems.append("Aircraft is not currently available.")
+        return dict(ok=not problems, blocking=problems)
+
+    def _tender(self, renewal_of=None, customer_counts=None):
         rep = self.s["company"]["reputation"]
         if renewal_of:
             cust = next(c for c in ACMI_CUSTOMERS if c["name"] == renewal_of["customer"])
@@ -2941,6 +3175,11 @@ class Game:
                 cands = [c for c in cands if fams & set(c["fams"])]
                 if not cands:
                     return None      # no airline wants capacity on what you are approved for
+            # Keep the board diverse: favour customers with the fewest live offers.
+            # When only a few customers match the AOC, repeats remain possible.
+            if customer_counts:
+                fewest = min(customer_counts.get(c["name"], 0) for c in cands)
+                cands = [c for c in cands if customer_counts.get(c["name"], 0) == fewest]
             cust = self.rng.choice(cands)
             cust = dict(cust, hubs=[h for h in cust.get("hubs", []) if self.in_area(h)] or cust.get("hubs", []))
             own = types_for(cust["name"])
@@ -2954,11 +3193,48 @@ class Game:
                 types = [t for t in types if AIRCRAFT[t]["cat"] != "Widebody"] or types
             code = self.rng.choice(types)
         ac = AIRCRAFT[code]
-        mn = {"Turboprop": (120, 200), "Regional": (150, 250), "Narrowbody": (200, 300), "Widebody": (250, 350)}[ac["cat"]]
+        # Present capacity requirements rather than specific freighter conversions.
+        # B757/767 is one pilot-rating family, but not one aircraft size/category.
+        tender_name = (f"Boeing {'757' if ac['cat'] == 'Narrowbody' else '767'} "
+                       f"{'freighter' if ac['cargo'] else 'passenger'} capacity"
+                       if ac["family"] == "B757/767" else ac["name"])
         reasons = (["peak cargo season", "e-commerce volume surge", "freighter conversion downtime", "engine shop-visit backlog", "new cargo lane launch", "heavy maintenance cover"]
                    if cust["cargo"] else
                    ["summer schedule capacity", "winter sun programme", "fleet grounding cover", "delivery delay cover", "heavy maintenance cover",
                     "new route launch", "crew shortage cover", "engine shop-visit backlog"])
+        # The minimum guarantee is the billable floor, NOT a requirement to fly
+        # that many hours. Customers can have very different needs on the same type.
+        # These are game-design ranges in BH per full calendar month.
+        profiles = {
+            "maintenance": {"Turboprop": (45, 90), "Regional": (55, 115),
+                            "Narrowbody": (70, 140), "Widebody": (90, 160)},
+            "supplemental": {"Turboprop": (65, 135), "Regional": (85, 160),
+                             "Narrowbody": (110, 190), "Widebody": (130, 210)},
+            "dedicated": {"Turboprop": (100, 175), "Regional": (130, 205),
+                          "Narrowbody": (175, 245), "Widebody": (190, 270)},
+            "peak": {"Turboprop": (140, 210), "Regional": (170, 245),
+                     "Narrowbody": (210, 285), "Widebody": (230, 310)},
+        }
+        reason = "contract extension offer" if renewal_of else self.rng.choice(reasons)
+        schedule_ranges = {"maintenance": (2, 4), "supplemental": (4, 5),
+                           "dedicated": (5, 7), "peak": (7, 7)}
+        if renewal_of:
+            profile = renewal_of.get("utilization_profile", "dedicated")
+            min_hours = max(30, round(renewal_of["min_hours"] * self.rng.uniform(0.95, 1.05)))
+            days_week = renewal_of.get("schedule_days_week") or self.rng.randint(*schedule_ranges.get(profile, (5, 7)))
+        else:
+            if reason in ("heavy maintenance cover", "freighter conversion downtime",
+                          "engine shop-visit backlog", "fleet grounding cover", "delivery delay cover"):
+                profile = "maintenance"
+            elif reason in ("peak cargo season", "e-commerce volume surge",
+                            "summer schedule capacity", "winter sun programme"):
+                profile = "peak"
+            elif reason in ("new cargo lane launch", "new route launch"):
+                profile = "dedicated"
+            else:
+                profile = "supplemental"
+            min_hours = self.rng.randint(*profiles[profile][ac["cat"]])
+            days_week = self.rng.randint(*schedule_ranges[profile])
         months = self.rng.choice([2, 3, 3, 4, 6, 6, 9, 12])
         start = self.now() + timedelta(days=self.rng.randint(6, 30))
         sf = season(start.month, cust["cargo"])
@@ -2967,12 +3243,26 @@ class Game:
             rate = renewal_of["rate"] * self.rng.uniform(1.03, 1.12)
             start = parse(renewal_of["end"])
         hub = renewal_of["hub"] if renewal_of else self.rng.choice(cust["hubs"])
-        return dict(id=self.nid("tender"), customer=cust["name"], iata=cust["iata"], type=code, name=ac["name"], hub=hub, family=ac["family"],
-                    cargo=cust["cargo"], months=months, min_hours=self.rng.randint(*mn), rate=money(rate), start=iso(start),
-                    reason="contract extension offer" if renewal_of else self.rng.choice(reasons), expires=iso(self.now() + timedelta(days=self.rng.randint(5, 20))),
-                    network=[x for x in cust["network"]
-                             if x in AIRPORTS and gc_nm(hub, x) < ac["range_nm"] * 0.85 and self.in_area(x)]
-                            or [x for x in cust["network"][:6] if self.in_area(x)] or [hub],
+        network = ([x for x in cust["network"]
+                    if x in AIRPORTS and gc_nm(hub, x) < ac["range_nm"] * 0.85 and self.in_area(x)]
+                   or [x for x in cust["network"][:6] if self.in_area(x)] or [hub])
+        # This is a request for capability, NOT an exact factory/conversion variant.
+        # Cargo minimums remain optional until the data.py payload fields are added.
+        payload = ac.get("payload_kg") or ac.get("max_payload_kg")
+        requirements = dict(
+            family=ac["family"], category=ac["cat"], cargo=bool(cust["cargo"]),
+            min_seats=(round(ac["seats"] * self.rng.uniform(0.80, 0.94))
+                       if not cust["cargo"] else 0),
+            min_payload_kg=(round(payload * self.rng.uniform(0.78, 0.90))
+                            if cust["cargo"] and payload else None),
+            max_sector_nm=max((round(gc_nm(hub, x)) for x in network
+                               if x != hub and x in AIRPORTS), default=0),
+        )
+        return dict(id=self.nid("tender"), customer=cust["name"], iata=cust["iata"], type=code, name=tender_name, hub=hub, family=ac["family"],
+                    cargo=cust["cargo"], months=months, min_hours=min_hours, rate=money(rate), start=iso(start),
+                    utilization_profile=profile, schedule_days_week=days_week,
+                    reason=reason, expires=iso(self.now() + timedelta(days=self.rng.randint(5, 20))),
+                    network=network, requirements=requirements,
                     competitors=[] if renewal_of else self.rng.sample(CARGO_COMPETITORS if cust["cargo"] else COMPETITORS, self.rng.randint(1, 3)), renewal=bool(renewal_of),
                     season_note="peak season rate" if sf > 1 else "off-season rate" if sf < 1 else "")
 
@@ -2992,11 +3282,13 @@ class Game:
                     self.notice(f"{x['customer']} closed the {x['name']} tender early — awarded to {w}.")
                     self.mail(x["customer"], f"{x['name']} requirement — tender closed", f"We have awarded the {x['name']} requirement at {x['hub']} to {w}. We will consider your company for future tenders.", action="tenders")
                     t.remove(x)
-        target = int(7 * season(now.month, False))
+        target = self._board_target("acmi", full=full)
         spins, dry = 0, 0
         while len(t) < target and spins < 200 and dry < 25:
             spins += 1
-            x = self._tender()
+            counts = {name: sum(1 for offer in t if offer["customer"] == name)
+                      for name in {offer["customer"] for offer in t}}
+            x = self._tender(customer_counts=counts)
             if not x:
                 dry += 1
                 continue
@@ -3008,10 +3300,9 @@ class Game:
         if not t:
             raise GameError("Tender has expired.")
         a = self.fleet_ac(ac_id)
-        if a["type"] != t["type"]:
-            raise GameError(f"{t['customer']} requires a {t['name']} ({t['type']}); {a['reg']} is a {a['type']}.")
-        if a["status"] != "Available":
-            raise GameError(f"{a['reg']} is not available.")
+        fit = self.acmi_fit(t, a)
+        if not fit["ok"]:
+            raise GameError(f"{a['reg']} cannot satisfy the ACMI requirement: " + " ".join(fit["blocking"]))
         crew = [self.pilot(i) for i in crew_ids]
         if len(set(crew_ids)) < 4:
             raise GameError("Assign four pilots to the contract.")
@@ -3030,8 +3321,13 @@ class Game:
         if self.s["cash"] < recon:
             raise GameError(f"Livery/decals and cabin reconfiguration costs ${recon:,}.")
         self.post("Reconfiguration", f"{'Livery and cabin reconfiguration' if livery else 'Decals and placards'} {a['reg']} for {t['customer']}", -recon)
-        c = dict(id=self.nid("contract"), customer=t["customer"], iata=t["iata"], type=t["type"], name=t["name"], aircraft_id=a["id"], reg=a["reg"],
-                 hub=t["hub"], network=t["network"], months=t["months"], min_hours=t["min_hours"], rate=t["rate"], start=t["start"],
+        # Once awarded, the contract records the actual aircraft supplied. Rotation()
+        # then uses its real performance, not the tender's reference variant.
+        c = dict(id=self.nid("contract"), customer=t["customer"], iata=t["iata"], type=a["type"], name=a["name"], aircraft_id=a["id"], reg=a["reg"],
+                 hub=t["hub"], network=t["network"], requirements=t.get("requirements", {}),
+                 utilization_profile=t.get("utilization_profile", "dedicated"),
+                 schedule_days_week=t.get("schedule_days_week"),
+                 months=t["months"], min_hours=t["min_hours"], rate=t["rate"], start=t["start"],
                  end=iso(parse(t["start"]) + timedelta(days=30 * t["months"])), reason=t["reason"], cargo=t["cargo"], family=t["family"],
                  hours_month=0.0, hours_total=0.0, legs_month=0, revenue_total=0, months_billed=0, strikes=0, status="Pending start",
                  crew=[p["id"] for p in crew], history=[], signed=self.s["clock"], cabin_crew=cabin, renewal=t["renewal"],
@@ -3043,7 +3339,7 @@ class Game:
         self.s["acmi_tenders"].remove(t)
         self.s["contracts"].append(c)
         self.event("contract", f"ACMI contract signed with {c['customer']}", f"{c['name']} {a['reg']} at {c['hub']}, {c['months']} months at ${c['rate']:,}/BH.")
-        self.mail(c["customer"], f"ACMI agreement #{c['id']} — {c['name']} {a['reg']}", f"Term {c['months']} months from {c['start'][:10]} at ${c['rate']:,}/BH, minimum {c['min_hours']} BH per month. Aircraft to be positioned at {c['hub']} in our livery by the start date. Our operations control will publish daily rotations.", action="contracts", pin=True)
+        self.mail(c["customer"], f"ACMI agreement #{c['id']} — {c['name']} {a['reg']}", f"Term {c['months']} months from {c['start'][:10]} at ${c['rate']:,}/BH, minimum {c['min_hours']} BH per month. Aircraft to be positioned at {c['hub']} in our livery by the start date. Our operations control will publish rotations on approximately {c.get('schedule_days_week') or 6} days each week; days without a published rotation are not non-performance.", action="contracts", pin=True)
         self.award("first_acmi")
         self.notice(f"ACMI contract #{c['id']} signed with {c['customer']}: {c['name']} {a['reg']}, {c['months']} months at ${c['rate']:,}/BH, min {c['min_hours']} BH/month. Position at {c['hub']} by {c['start'][:10]}.")
         self.save()
@@ -3074,13 +3370,14 @@ class Game:
             self.mail(c["customer"], f"Agreement #{c['id']} complete", f"Thank you for {c['hours_total']:.0f} block hours over {c['months']} months. The aircraft is released from our schedule.", action="contracts")
 
     def operate_rotation(self, cid, date=None, sectors=None):
-        """Hand today's rotation to the company crew. An ACMI contract publishes a
-        rotation every day whether or not you have time to fly it yourself."""
+        """Hand a published rotation to the company crew, if flying is scheduled today."""
         c = self.contract(cid)
         if c["status"] != "Active":
             raise GameError("That contract is not active.")
         a = self.fleet_ac(c["aircraft_id"])
         legs = self.rotation(cid, date)
+        if not legs:
+            return dict(flown=0, message=f"No {c['customer']} flights requested today. The aircraft remains available under the minimum guarantee.")
         flown, notes = 0, []
         for leg in legs:
             if sectors and flown >= sectors:
@@ -3134,22 +3431,79 @@ class Game:
         return dict(penalty=penalty, message=f"Contract handed back. Early termination charges ${penalty:,.0f}.")
 
     def rotation(self, cid, date=None):
+        """Deterministic, profile-based customer flying programme.
+
+        A guaranteed monthly number of BH is a payment floor, NOT a flight quota.
+        Weekly operating days are selected once per contract week; an off day
+        publishes no sectors and cannot count as an unflown rotation.
+        """
         c = self.contract(cid)
         date = date or self.s["clock"][:10]
-        r = random.Random(f"{cid}-{date}")
+        day = datetime.strptime(date[:10], "%Y-%m-%d")
+        profile = c.get("utilization_profile", "dedicated")
+        default_days = {"maintenance": 3, "supplemental": 5,
+                        "dedicated": 6, "peak": 7}
+        days_week = int(c.get("schedule_days_week") or default_days.get(profile, 6))
+        days_week = max(1, min(7, days_week))
+
+        # Each calendar week has a repeatable set of operating days, so opening
+        # Dispatch twice (or reloading a save) cannot change the published plan.
+        monday = day - timedelta(days=day.weekday())
+        week_rng = random.Random(f"acmi-week:{c['id']}:{monday:%Y-%m-%d}")
+        operating_weekdays = set(week_rng.sample(range(7), days_week))
+        if day.weekday() not in operating_weekdays:
+            return []
+
+        r = random.Random(f"acmi-rotation:{c['id']}:{date}")
         ac = AIRCRAFT[c["type"]]
-        dests = [x for x in c["network"] if x in AIRPORTS and x != c["hub"] and gc_nm(c["hub"], x) < ac["range_nm"] * 0.85]
+        hub = c["hub"]
+        dests = [x for x in c.get("network", [])
+                 if x in AIRPORTS and x != hub and
+                 gc_nm(hub, x) < ac["range_nm"] * 0.85]
         if not dests:
-            dests = [x for x in c["network"] if x in AIRPORTS and x != c["hub"]] or ["EGLL"]
-        n = r.choice([2, 2, 3])
-        legs, base_no, t = [], r.randint(100, 8900), 6 * 60 + r.randint(0, 90)
-        for i in range(n):
-            d = r.choice(dests)
-            for k, (o, de) in enumerate(((c["hub"], d), (d, c["hub"]))):
-                dist = gc_nm(o, de)
+            return []  # Do not invent an unrelated international destination.
+
+        # On active days choose a reasonable daily flying programme, based on the
+        # contracted guarantee and how often the customer normally uses capacity.
+        # The requested hours may still be below the *guaranteed* hours.
+        daily_target = c["min_hours"] / (52 / 12 * days_week)
+        daily_target *= r.uniform(0.82, 1.12)
+        max_trips = {"maintenance": 2, "supplemental": 2,
+                     "dedicated": 3, "peak": 3}.get(profile, 2)
+        options = []
+        for destination in dests:
+            nm = gc_nm(hub, destination)
+            pair_minutes = 2 * (nm / ac["cruise"] * 60 + 25)
+            for trips in range(1, max_trips + 1):
+                total_block_h = trips * pair_minutes / 60
+                # Two crew sets can share a long day, but a round trip still
+                # needs to fit within a realistic aircraft operating window.
+                elapsed_h = total_block_h + (2 * trips - 1) * 0.75
+                if elapsed_h <= 19 and total_block_h <= 16:
+                    options.append((abs(total_block_h - daily_target)
+                                    + r.uniform(0, 0.4), destination, trips))
+        if not options:
+            return []
+        _, primary, trips = min(options)
+        legs, base_no = [], r.randint(100, 8900)
+        t = 6 * 60 + r.randint(0, 75)
+        for i in range(trips):
+            # Keep a stable basic route; occasionally use another route of
+            # similar length to give the customer's network some variety.
+            dest = primary
+            if i and len(dests) > 1 and r.random() < 0.35:
+                primary_nm = gc_nm(hub, primary)
+                close = [x for x in dests if abs(gc_nm(hub, x) - primary_nm) <= primary_nm * 0.15]
+                if close:
+                    dest = r.choice(close)
+            for k, (origin, destination) in enumerate(((hub, dest), (dest, hub))):
+                dist = gc_nm(origin, destination)
                 ete = int(dist / ac["cruise"] * 60 + 25)
-                legs.append(dict(seq=len(legs) + 1, flight_number=f"{c['iata']}{base_no + i * 2 + k}", origin=o, destination=de, distance=int(dist),
-                                 ete_min=ete, std=f"{t // 60:02d}:{t % 60:02d}", date=date))
+                legs.append(dict(seq=len(legs) + 1,
+                                 flight_number=f"{c['iata']}{base_no + i * 2 + k}",
+                                 origin=origin, destination=destination,
+                                 distance=int(dist), ete_min=ete,
+                                 std=f"{t // 60:02d}:{t % 60:02d}", date=date))
                 t += ete + 45
         return legs
 
@@ -4348,7 +4702,7 @@ class Game:
                 a = next((x for x in self.s["fleet"] if x["id"] == c["aircraft_id"]), None)
                 if a and a["location"] == c["hub"] and a["status"] != "Maintenance":
                     c["status"] = "Active"
-                    self.notice(f"Contract #{c['id']} with {c['customer']} is now active. Daily rotations available in Dispatch.")
+                    self.notice(f"Contract #{c['id']} with {c['customer']} is now active. Check Dispatch for the published operating days.")
                 elif (now - parse(c["start"])).days > 7:
                     self.post("Penalty", f"Non-delivery penalty {c['customer']} contract #{c['id']}", -c["rate"] * c["min_hours"] * 0.5)
                     self.rep(-8, f"failed to position {c['reg']} for {c['customer']}")
@@ -4392,33 +4746,72 @@ class Game:
         for role, n in self.s["staff"].items():
             out("Crew", f"Salaries {STAFF[role]['title']} x{n}", STAFF[role]["salary"] * n)
         out("Overheads", "Office, hangar space, ops software and AOC compliance", 24000 + 7500 * len(self.s["fleet"]))
+        # The prior month's calendar boundaries also let us settle short first/last
+        # months and contracts that completed on the 1st before _monthly() runs.
+        period_end = self.now().replace(day=1, hour=0, minute=0)
+        period_start = (period_end - timedelta(days=1)).replace(day=1)
+        period_key = period_start.strftime("%Y-%m")
         for c in self.s["contracts"]:
-            if c["status"] != "Active":
+            if c["status"] not in ("Active", "Completed") or c.get("last_settlement_month") == period_key:
                 continue
-            util = c["hours_month"] / c["min_hours"]
-            short = max(0.0, c["min_hours"] - c["hours_month"])
-            if short > 0:
-                self.invoice(c["customer"], f"Minimum guarantee true-up ({short:.0f} BH)", short * c["rate"], ref=c["id"], kind="acmi")
-                total_in += short * c["rate"]
-                rep_lines.append((f"Minimum guarantee true-up {c['customer']} ({short:.0f} BH) — invoiced", money(short * c["rate"])))
-                c["revenue_total"] += short * c["rate"]
+            service_start = max(period_start, parse(c["start"]))
+            service_end = min(period_end, parse(c["end"]))
+            active_days = max(0.0, (service_end - service_start).total_seconds() / 86400)
+            if not active_days:
+                continue
+            fraction = active_days / ((period_end - period_start).total_seconds() / 86400)
+            prorated_min = c["min_hours"] * fraction
+            util = c["hours_month"] / prorated_min if prorated_min else 0.0
+
             k = c["kpi"]
-            completion = k["legs_flown"] / k["legs_scheduled"] if k["legs_scheduled"] else 1.0
-            otp = 1 - k["late"] / k["legs_flown"] if k["legs_flown"] else 1.0
-            k["satisfaction"] = round(max(0, min(100, 40 + 30 * min(1, util / 0.5) + 15 * completion + 15 * otp)), 1)
-            if util < 0.10:
+            scheduled = k["legs_scheduled"]
+            completion = min(1.0, k["legs_flown"] / scheduled) if scheduled else 1.0
+            otp = max(0.0, 1 - k["late"] / k["legs_flown"]) if k["legs_flown"] else 1.0
+
+            # No requested flights? Customer still owes the minimum for capacity
+            # held available. Missed published flights are an operator shortfall,
+            # so the minimum floor earns a service credit below 80% completion.
+            # Completion is a temporary availability proxy until an explicit
+            # aircraft-ready/day tracker is implemented.
+            floor_factor = min(1.0, completion / 0.80) if scheduled else 1.0
+            billable_floor = prorated_min * floor_factor
+            short = max(0.0, billable_floor - c["hours_month"])
+            if short > 0:
+                amount = short * c["rate"]
+                self.invoice(c["customer"], f"Minimum guarantee true-up ({short:.1f} BH)",
+                             amount, ref=c["id"], kind="acmi")
+                total_in += amount
+                rep_lines.append((f"Minimum guarantee true-up {c['customer']} ({short:.1f} BH) — invoiced", money(amount)))
+                c["revenue_total"] += amount
+
+            # Satisfaction measures service delivery, NOT the buyer's use of
+            # its guaranteed hours. Underutilisation alone is not a violation.
+            k["satisfaction"] = round(max(0, min(100, 30 + 50 * completion + 20 * otp)), 1)
+            if scheduled >= 8 and completion < 0.50 and c["status"] == "Active":
                 c["strikes"] += 1
-                self.notice(f"{c['customer']} has issued a non-performance notice on contract #{c['id']} ({c['hours_month']:.0f} of {c['min_hours']} BH flown).")
-                self.mail(c["customer"], f"Notice of non-performance — agreement #{c['id']}", f"Only {c['hours_month']:.0f} of the {c['min_hours']} guaranteed block hours were operated in {month}. A second notice will terminate the agreement.", action="contracts", pin=True)
+                self.notice(f"{c['customer']} issued a non-performance notice on contract #{c['id']} "
+                            f"({k['legs_flown']} of {scheduled} requested sectors operated).")
+                self.mail(c["customer"], f"Notice of non-performance — agreement #{c['id']}",
+                          f"Only {k['legs_flown']} of {scheduled} published sectors were operated in {month}. "
+                          "Guaranteed hours are a payment floor, not a required flying target. "
+                          "A second notice will terminate the agreement.", action="contracts", pin=True)
                 if c["strikes"] >= 2:
-                    out("Penalty", f"Termination for non-performance — {c['customer']} #{c['id']}", c["rate"] * c["min_hours"] * 0.5)
+                    out("Penalty", f"Termination for non-performance — {c['customer']} #{c['id']}",
+                        c["rate"] * prorated_min * 0.5)
                     self.rep(-10, f"contract #{c['id']} terminated by {c['customer']}")
-                    self._end_contract(c, "Terminated", "non-performance")
-            elif util >= 0.5:
-                self.rep(2, f"strong utilisation on {c['customer']} contract")
-            c["history"].append(dict(month=month, hours=round(c["hours_month"], 1), legs=c["legs_month"], util=round(util * 100), otp=round(otp * 100), completion=round(completion * 100), satisfaction=k["satisfaction"]))
+                    self._end_contract(c, "Terminated", "missed published rotations")
+            elif scheduled and completion >= 0.90:
+                self.rep(2, f"reliable ACMI service for {c['customer']}")
+
+            c["history"].append(dict(month=month, hours=round(c["hours_month"], 1),
+                                     legs=c["legs_month"], guarantee=round(prorated_min, 1),
+                                     billed_floor=round(billable_floor, 1),
+                                     trueup=round(short, 1), util=round(util * 100),
+                                     otp=round(otp * 100), completion=round(completion * 100),
+                                     satisfaction=k["satisfaction"]))
             if k["legs_flown"] >= 20 and k["late"] == 0:
                 self.award("otp")
+            c["last_settlement_month"] = period_key
             c["hours_month"], c["legs_month"], c["months_billed"] = 0.0, 0, c["months_billed"] + 1
             k["legs_scheduled"], k["legs_flown"], k["late"], k["delay_min"] = 0, 0, 0, 0
         for l in list(self.s["loans"]):
